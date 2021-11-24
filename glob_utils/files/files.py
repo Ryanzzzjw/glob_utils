@@ -28,6 +28,7 @@ class FileExt(Enum):
     mat= '.mat' # matlab files
     pkl= '.pkl' # pickle files
     txt= '.txt' # text files
+    log= '.log' # log files
 
     def __repr__(self):
       return self.value
