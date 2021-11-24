@@ -5,18 +5,17 @@ from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
 import pickle
 import json
 import datetime
-from typing import Union
+from typing import Any, Union
 
 from logging import getLogger
 
 logger = getLogger(__name__)
 
 ################################################################################
-# File extention managed here
+# File ext managed here
 ################################################################################
-
 class FileExt(Enum):
-    """Set all files extension used
+    """Set all files ext used
 
     to get the str-value use eg.:
     FileExt.mat.value
@@ -46,12 +45,11 @@ class LoadCancelledException(Exception):
 class WrongFileTypeSelectedError(Exception):
     """"""
 
-def get_file(file_types=[("All files","*.*")], verbose:bool= False, initialdir:str=None, title:str= '', split:bool=True):
+def get_file(file_types=[("All files","*.*")], initialdir:str=None, title:str= '', split:bool=True, **kwargs):
     """used to get select files using gui (multiple types of file can be set!)
 
     Args:
         filetypes (list, optional): [description]. Defaults to [("All files","*.*")].
-        verbose (bool, optional): [description]. Defaults to True.
         path ([type], optional): [description]. Defaults to None.
 
     Returns:
@@ -64,23 +62,20 @@ def get_file(file_types=[("All files","*.*")], verbose:bool= False, initialdir:s
     file_path = askopenfilename(
         initialdir=initialdir or os.getcwd(),
         filetypes=file_types,
-        title=title) 
-    print(file_path)
+        title=title, **kwargs, )
+
     if not file_path:
         raise OpenDialogFileCancelledException()
-    if not split:
-        return file_path
-    path, filename = os.path.split(file_path)
 
-    return path, filename
-    
+    return os.path.split(file_path) if split else file_path
+ 
 
-def get_file_dir_path( file_path:str='', extension:str=FileExt.txt.value, **kwargs):
+def get_file_dir_path( file_path:str='', ext:str=FileExt.txt.value, **kwargs):
     """
 
     Args:
         file_path (str, optional): [description]. Defaults to ''.
-        extension ([type], optional): [description]. Defaults to const.EXT_MAT.
+        ext ([type], optional): [description]. Defaults to const.EXT_MAT.
 
     Raises:
         LoadCancelledException: [description]
@@ -91,41 +86,41 @@ def get_file_dir_path( file_path:str='', extension:str=FileExt.txt.value, **kwar
     """
     title= kwargs.pop('title') if 'title' in kwargs else None # pop title
 
-    file_path= verify_file(file_path, extension=extension)        
+    file_path= verify_file(file_path, ext=ext)        
     if not file_path:
         try: 
             file_path =get_file(
-                title=title or f'Please select *{extension} files',
-                file_types=[(f"{extension}-file",f"*{extension}")],
+                title=title or f'Please select *{ext} files',
+                file_types=[(f"{ext}-file",f"*{ext}")],
                 split=False,**kwargs)
         except OpenDialogFileCancelledException:
             raise LoadCancelledException('Loading aborted from user')
     dir_path=os.path.split(file_path)[0]
 
-    if not verify_file(file_path, extension=extension):
-        raise WrongFileTypeSelectedError('User selected a file with wrong extention!')
+    if not verify_file(file_path, ext=ext):
+        raise WrongFileTypeSelectedError('User selected a file with wrong extension!')
 
     return dir_path , file_path
 
-
-def verify_file(file_path:str, extension:Union[str, FileExt]):
+def verify_file(file_path:str, ext:Union[str, FileExt])-> Union[str, None]:
     """[summary]
 
     Args:
-        path ([type]): [description]
-        extension ([type]): [description]
+        file_path (str): [description]
+        ext (Union[str, FileExt]): [description]
 
     Returns:
-        [type]: [description]
+        Union[str, None]: [description]
     """
-    path_out=''
+
     if not os.path.isfile(file_path):
-        logger.debug(f'File "{file_path}" does not exist or is not a file!')
-        return path_out
-    _, file_extension = os.path.splitext(file_path)
-    if file_extension== f'{extension}':
-        path_out= file_path
-    return path_out
+        logger.error(f'File "{file_path}" does not exist or is not a file!')
+        return None
+    _, file_ext = os.path.splitext(file_path)
+    if file_ext!= f'{ext}':
+        logger.error(f'File "{file_path}"- is not a {ext}-file!')
+        return None
+    return file_path
 
 ################################################################################
 # Save/Load pkl files
@@ -133,12 +128,12 @@ def verify_file(file_path:str, extension:Union[str, FileExt]):
 def save_as_pickle(file_path, class2save, verbose=False, append_ext=True):
     """
     """
-    file_path= append_extention(file_path, FileExt.pkl) if append_ext else file_path
+    file_path= append_ext(file_path, FileExt.pkl) if append_ext else file_path
     with open(file_path, 'wb') as file:
         pickle.dump(class2save, file, pickle.HIGHEST_PROTOCOL)
     print_saving_verbose(file_path, class2save, verbose)
 
-def load_pickle(filename, class2upload=None):
+def load_pickle(file_path, class2upload=None):
     """[summary]
 
     Args:
@@ -150,7 +145,7 @@ def load_pickle(filename, class2upload=None):
         [type]: [description]
     """
 
-    with open(filename, 'rb') as file:
+    with open(file_path, 'rb') as file:
         loaded_class = pickle.load(file)
     # print_loading_verbose(filename, loaded_class, verbose)
     if not class2upload:
@@ -179,7 +174,7 @@ def save_as_txt(file_path, class2save, verbose=True, append_ext=True):
         verbose (bool, optional): [description]. Defaults to True.
         add_ext (bool, optional): [description]. Defaults to True.
     """
-    file_path= append_extention(file_path, FileExt.txt) if append_ext else file_path
+    file_path= append_ext(file_path, FileExt.txt) if append_ext else file_path
     
     list_of_strings = []
     if isinstance(class2save,str):
@@ -205,8 +200,8 @@ def save_as_txt(file_path, class2save, verbose=True, append_ext=True):
         [ file.write(f'{st}\n') for st in list_of_strings ]
 
     # print_saving_verbose(filepath, class2save, verbose)
-def read_txt(filepath):
-    with open(filepath, 'r') as file:
+def read_txt(file_path:str)-> Any:
+    with open(file_path, 'r') as file:
         lines = file.readlines()
 
     if 'Dictionary form:' in lines[0]:
@@ -225,23 +220,33 @@ def save_as_mat(file_path:str, data:dict, append_ext:bool=True):
 def load_mat(file_path:str)-> dict:
     from scipy.io.matlab.mio import loadmat
     if not verify_file(file_path, FileExt.mat):
-        logger.error(f'Loading {file_path=} as mat file - failed, not a mat-file')
         return
-    return loadmat(file_path)
+    file = loadmat(file_path)
+    var = {key: file[key] for key in file.keys() if ("__") not in key}
+    logger.debug(f'Loaded keys: {var.keys()} from file {os.path.split(file_path)[1]}')
+    return var
+
+      
+# def load_file(file_path:str='', ext:Union[str, FileExt]=FileExt.mat, **kwargs):
+#     """load all variables contained in a mat file in a dictionnary,
+#     return the dict and the file_path (in case of selection by user)"""
+#     _ , file_path= get_file_dir_path(file_path, ext=ext, **kwargs)
+    
+#     return var, file_path
 
 
 ################################################################################
 # Methods
 ################################################################################
-def append_extention(file_path:str, ext:Union[str, FileExt])->str:
-    """ Append and or replace extention to the file path
+def append_ext(file_path:str, ext:Union[str, FileExt])->str:
+    """ Append and or replace ext to the file path
     
     Args:
         filepath (str): path of the file
-        ext (Union[str, FileExt]): extention 
+        ext (Union[str, FileExt]): ext 
 
     Returns:
-        str: path of the file with extention
+        str: path of the file with ext
     """    
     return f'{os.path.splitext(file_path)[0]}{ext}'
 
