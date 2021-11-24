@@ -1,9 +1,8 @@
 # glob_utils
 
-package used in different packages
+package regrouping different utilities used in different packages
 
 ## 1. Introduction
-
 
 ### 1.1 Dependencies
 ### 1.2 Features
