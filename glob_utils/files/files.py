@@ -13,7 +13,7 @@ from glob_utils.log.msg_trans import highlight_msg
 
 
 
-from logging import getLogger
+from logging import debug, getLogger
 
 from glob_utils.pth.path_utils import dir_exist
 
@@ -315,11 +315,14 @@ def save_as_txt(file_path, obj, append_ext=True)->None:
 def read_txt(file_path:str)-> Any:
     with open(file_path, 'r') as file:
         lines = file.readlines()
-
+    logger.debug(f'{lines=}')
+    if not lines:
+        return None
     if 'Dictionary form:' in lines[0]:
         out= json.loads(lines[1].replace('\n', ''))
         logging_file_loaded(file_path)
         return out
+    
 
 ################################################################################
 # Save/Load mat files
