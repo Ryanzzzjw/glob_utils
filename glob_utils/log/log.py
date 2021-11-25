@@ -68,4 +68,3 @@ def change_level_logging(level:int=logging.DEBUG)->None:
 if __name__ == '__main__':
     main_log()
     msg = 'Training results will be found in : huirhguihruhguher'
-    logger.info(highlight_msg(msg))
