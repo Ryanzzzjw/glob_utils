@@ -102,8 +102,10 @@ def get_POSIX_path(path:str)->str:
 ################################################################################
 class OpenDialogDirCancelledException(Exception):
     """"""
+class DirNotFoundError(Exception):
+    """"""    
 
-def dir_exist(dir_path:str, create_auto:bool=False)->bool:
+def dir_exist(dir_path:str, create_auto:bool=False, raise_error:bool=False)->bool:
     """Test if a directory exist
     setting the create argument to `True` allow the automatic creation
     of the directory 
@@ -112,6 +114,11 @@ def dir_exist(dir_path:str, create_auto:bool=False)->bool:
         dir_path (str): directory path to test / create
         create_auto (bool, optional): allow the automatic creation
     of the directory if it not exist . Defaults to False.
+        raise_error (bool, optional): DirNotFoundError raised if set to `True`.
+        Defaults to `False`.
+
+    Raises:
+        `DirNotFoundError`: if path not a dir or not exist
 
     Returns:
         bool: return `True` if dir_path is an existing dir or
@@ -119,10 +126,13 @@ def dir_exist(dir_path:str, create_auto:bool=False)->bool:
     """    
 
     exist= os.path.isdir(dir_path)
+    if not exist and raise_error:
+        raise DirNotFoundError(f'"{dir_path}" - Directory not found!')
     if not exist and create_auto:
         os.mkdir(dir_path)
         logger.info(f'Directory: {dir_path} - created')
         exist= True
+    
     return exist
 
 def mk_new_dir(dir_name:str, parent_dir:str= None )-> str:
