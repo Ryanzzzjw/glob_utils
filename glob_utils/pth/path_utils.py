@@ -13,8 +13,6 @@ import time
 
 logger = getLogger(__name__)
 
-class OpenDialogDirCancelledException(Exception):
-    """"""
 
 FORMAT_DATE_TIME= "%Y%m%d_%H%M%S"
 FORMAT_TIME= "%Hh%Mm%Ss"
@@ -102,6 +100,8 @@ def get_POSIX_path(path:str)->str:
 ################################################################################
 #Directory 
 ################################################################################
+class OpenDialogDirCancelledException(Exception):
+    """"""
 
 def dir_exist(dir_path:str, create_auto:bool=False)->bool:
     """Test if a directory exist
@@ -154,7 +154,7 @@ def get_dir(title:str='Select a directory', initialdir:str=None)->str:
         initialdir (str, optional): path of initial directory for the explorer dialog. Defaults to None.
 
     Raises:
-        DialogCancelledException: when user cancelled the dialog 
+        OpenDialogDirCancelledException: when user cancelled the dialog 
 
     Returns:
         str: a directory path selected by a user
@@ -166,7 +166,8 @@ def get_dir(title:str='Select a directory', initialdir:str=None)->str:
         initialdir=initialdir or os.getcwd(),
         title= title)
     if not dir_path :
-        raise OpenDialogDirCancelledException()
+        raise OpenDialogDirCancelledException(
+            'Open dialog box for directory selection - Cancelled')
     return dir_path    
 
 
