@@ -9,8 +9,7 @@ class DefaultDir(object):
     _dirs: dict =None
 
     def __init__(self, input_dir:str='input', output_dir:str='output') -> None:
-        self._dirs['input']= input_dir
-        self._dirs['output']= output_dir
+        self._dirs = {'input': input_dir, 'output': output_dir}
 
     @property
     def input(self):
