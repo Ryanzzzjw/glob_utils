@@ -47,6 +47,10 @@ class FileExt(Enum):
 ################################################################################
 class OpenDialogFileCancelledException(Exception):
     """"""
+class DataLoadedNotCompatibleError(Exception):
+    """"""
+class EmptyFileError(Exception):
+    """"""
 
 def dialog_get_file(
     file_types:list=None,
@@ -83,7 +87,8 @@ def dialog_get_file(
         **kwargs)
 
     if not file_path:
-        raise OpenDialogFileCancelledException()
+        raise OpenDialogFileCancelledException(
+            'Open dialog box for file selection - Cancelled')
 
     return file_path
  
@@ -222,10 +227,6 @@ def load_pickle(file_path, obj=None)->Any:
     set_existing_attrs(obj, loaded_class)
     return obj
 
-def set_existing_attrs(obj, new_obj)->None:
-    for key in new_obj.__dict__.keys():
-        if key in obj.__dict__.keys():
-            setattr(obj,key, getattr(new_obj,key))
 
     # for key in class2upload.__dict__.keys():
     #         setattr(class2upload, key, getattr(newclass,key))
@@ -332,6 +333,17 @@ def append_ext(path:str, ext:Union[str, FileExt]= None)->str:
     """    
     return f'{os.path.splitext(path)[0]}{ext}' if ext is not None else path
 
+def set_existing_attrs(obj, new_obj)->None:
+    for key in new_obj.__dict__.keys():
+        if key in obj.__dict__.keys():
+            setattr(obj,key, getattr(new_obj,key))
+
+def set_attributes(class2upload,loaded_class) -> None:
+    if not isinstance(loaded_class, type(class2upload)):
+        raise DataLoadedNotCompatibleError(f'loaded data type{type(loaded_class,)}, expected type {type(class2upload)}')
+
+    for key in loaded_class.__dict__.keys():
+        setattr(class2upload, key, getattr(loaded_class,key))
 
 # def log_saving(filename, class2save= None):
 #     if hasattr(class2save, 'type'):
