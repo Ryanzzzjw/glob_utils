@@ -8,7 +8,6 @@ import datetime
 from typing import Union
 
 from logging import getLogger
-from glob_utils.files.files import FileExt
 import time
 
 logger = getLogger(__name__)
@@ -81,11 +80,9 @@ def split_appendix_date_time(string:str)-> tuple[str,str]:
             datetime_s= string[-length:]
             datetime.datetime.strptime(datetime_s, FORMAT_DATE_TIME)
             string_without_datetime= string[:-length]
-            # if not string_without_datetime: # 
-            #     string_without_datetime=''
         except ValueError:
             datetime_s= ''
-    if string_without_datetime[-1]==DATETIME_APPENDIX_DELIMITER:
+    if string_without_datetime and string_without_datetime[-1]==DATETIME_APPENDIX_DELIMITER:
         string_without_datetime= string_without_datetime[:-2]
 
     return string_without_datetime, datetime_s
