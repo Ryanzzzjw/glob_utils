@@ -1,28 +1,44 @@
 
-from glob_utils.pth.path_utils import dir_exist, get_dir
+from typing import Union
+from glob_utils.files.files import FileExt, is_file_with_ext, read_txt, save_as_txt
+from glob_utils.pth.path_utils import OpenDialogDirCancelledException, dir_exist, get_dir
+from enum import Enum
+import sys
 from logging import getLogger
 logger = getLogger(__name__)
 
 ################################################################################
 # management of global default directory
 ################################################################################
-class DefaultDir(object):
+class DirsList(Enum):
+    input= 'input'
+    output= 'output'
+
+
+class DefaultDir_old(object):
     """Contain the default input- and output path of an application"""    
     _dirs: dict =None
 
     def __init__(self, input_dir:str='input', output_dir:str='output') -> None:
-        self._dirs = {'input': input_dir, 'output': output_dir}
+        self._dirs = {
+            DirsList.input.value: input_dir,
+            DirsList.output.value: output_dir
+        }
+        self.check_dirs()
 
-    @property
-    def input(self):
-        return self._dirs['input']
+    # @property
+    # def input(self):
+    #     return self._dirs['input']
 
-    @property
-    def output(self):
-        return self._dirs['output']
+    # @property
+    # def output(self):
+    #     return self._dirs['output']
 
-    def set_dir(self, dir_path:str, dir_label:str='default_dir'):
-        self._dirs[dir_label]= dir_path
+    def default_dir(self, key:DirsList):
+        return self._dirs[key.value]
+
+    def set_dir(self, dir_path:str, dir_label:DirsList):
+        self._dirs[dir_label.value]= dir_path
         self.check_dirs()
 
     def check_dirs(self):
@@ -33,7 +49,7 @@ class DefaultDir(object):
         """
         for dir_label, dir_path in self._dirs.items():
 
-            if not dir_exist(dir_path, create_auto=False):
+            if not dir_exist(dir_path):
                 new_dir=get_dir(
                             title=f'Select a default {dir_label} directory'
                 )
@@ -41,10 +57,66 @@ class DefaultDir(object):
                 logger.info(f'Set "{dir_label}"-Directory to {new_dir}')
             else:
                 logger.info(f'"{dir_label}"-Directory is : {new_dir}')
+class DefaultDir(object):
+    """Contain the default input- and output path of an application"""    
+    _dirs: dict =None
 
-DEFAULT_DIRS= DefaultDir()   
+    def __init__(self) -> None:
+        self._dirs = {}
+
+    def get(self, key:str=None)-> Union[str, dict]:
+        return self._dirs[key] if key else self._dirs
+
+    def add_dir(self, dir_label:str, dir_path:str):
+        self._dirs[dir_label]= dir_path
+        self.check_dirs()
+
+    def check_dirs(self):
+        """ check if the input and output directoryies exist
+
+        if not ask the user to select some via explorer dialog
+
+        """
+        _dirs={}
+        for dir_label, dir_path in self._dirs.items():
+            if not dir_exist(dir_path):
+                try:
+                    new_dir=get_dir(
+                        title=f'Select a default "{dir_label}" directory'
+                    )
+                except OpenDialogDirCancelledException as e:
+                    logger.critical(f'{e}')
+                    sys.exit()
+                _dirs[dir_label]=new_dir
+            else:
+                _dirs[dir_label]=dir_path
+        self._dirs= _dirs
+
+    def log_default_dir(self):
+
+        l=[f'"{dir_label}": {dir_path}' for dir_label, dir_path in self._dirs.items()]
+        list_2log= 'Default directories:\n'+'Directory : Path \n'+'\n'.join(l)
+        logger.info(list_2log)
+
+def set_default_dir(reset:bool, DIR:DefaultDir, init_dirs:dict, path:str)->DefaultDir:
+
+    logger.info('Setting default dirs: Start ...')
+    dirs = None
+    if is_file_with_ext(path=path, ext=FileExt.txt):
+        dirs = read_txt(path) if not reset else None
+
+    dirs = dirs or init_dirs
+    
+    [DIR.add_dir(k, v) for k, v in dirs.items()]
+    DIR.log_default_dir()
+    save_as_txt(
+        path,
+        DIR.get())
+    logger.info('Setting default dirs: Done')
+    return DIR
 
 if __name__ == "__main__":
     """"""
-    print(DEFAULT_DIRS.input, DEFAULT_DIRS.output)
-    DEFAULT_DIRS.check_dirs()
+    # DEFAULT_DIRS= DefaultDir()   
+    # print(DEFAULT_DIRS.input, DEFAULT_DIRS.output)
+    # DEFAULT_DIRS.check_dirs()
