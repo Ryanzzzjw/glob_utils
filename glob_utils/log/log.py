@@ -5,7 +5,7 @@ import sys
 import os
 
 
-from glob_utils.files.files import FileExt, append_ext
+from glob_utils.files.files import FileExt, append_extension
 
 logger = logging.getLogger()
 
@@ -40,7 +40,7 @@ def main_log(logfile:str='debug.log')->None:
     logging_out_h = logging.StreamHandler(sys.stdout)
 
     logging_err_h = logging.StreamHandler(sys.stderr)
-    logging_file_h = logging.FileHandler(append_ext(logfile, FileExt.log))
+    logging_file_h = logging.FileHandler(append_extension(logfile, FileExt.log))
     logging_out_h.setFormatter(format_short)
     logging_err_h.setFormatter(format_short)
     logging_file_h.setFormatter(format_long)

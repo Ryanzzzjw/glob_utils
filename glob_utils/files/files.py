@@ -15,6 +15,8 @@ from glob_utils.log.msg_trans import highlight_msg
 
 from logging import getLogger
 
+from glob_utils.pth.path_utils import dir_exist
+
 logger = getLogger(__name__)
 
 ################################################################################
@@ -209,12 +211,40 @@ def is_file_with_ext(path:str, ext:Union[str, FileExt]= None, raise_error:bool=F
             raise WrongFileExtError(error_msg)
         return None
     return path
+
+
+def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None)-> list[str]:
+    """List the names (not path) of files contained in a directory dir
+    with a specific extension (if given)
+
+    Args:
+        dir_path (str): search directory path
+        ext (Union[str, FileExt], optional): file extension to search.
+        Defaults to `None`, all files will be listed.
+
+    Raises:
+        FileNotFoundError: raised if no files are to found in the dir
+
+    Returns:
+        list[str]: List of filenames contained in a dir 
+    """    
+
+    dir_exist(dir_path=dir_path, raise_error=True)
+    file_names = [file for file in os.listdir(dir_path)]
+    if ext:
+        file_names = [file for file in os.listdir(dir_path) 
+            if is_file_with_ext(path= os.path.join(dir_path, file), ext= ext)
+        ]
+    if not file_names: # if no files are contains
+        raise FileNotFoundError(f'No {ext}-file found in {dir_path=}')
+
+    return file_names
     
 ################################################################################
 # Save/Load pkl files
 ################################################################################
 def save_as_pickle(file_path, obj, append_ext=True)->None:
-    file_path= append_ext(file_path, FileExt.pkl) if append_ext else file_path
+    file_path= append_extension(file_path, FileExt.pkl) if append_ext else file_path
     with open(file_path, 'wb') as file:
         pickle.dump(obj, file, pickle.HIGHEST_PROTOCOL)
 
@@ -257,7 +287,7 @@ def load_pickle_app(file_path, obj=None):
 # Save/Load txt files
 ################################################################################
 def save_as_txt(file_path, obj, append_ext=True)->None:
-    file_path= append_ext(file_path, FileExt.txt) if append_ext else file_path
+    file_path= append_extension(file_path, FileExt.txt) if append_ext else file_path
     
     list_of_strings = []
     if isinstance(obj,str):
@@ -342,7 +372,7 @@ def load_mat(file_path:str, logging:bool= True)-> dict:
 ################################################################################
 # Methods
 ################################################################################
-def append_ext(path:str, ext:Union[str, FileExt]= None)->str:
+def append_extension(path:str, ext:Union[str, FileExt]= None)->str:
     """ Append and or replace the extension of a path
     
     Args:
