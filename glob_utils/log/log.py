@@ -11,6 +11,10 @@ logger = logging.getLogger()
 
 # http://stackoverflow.com/a/24956305/1076493
 # filter messages lower than level (exclusive)
+
+################################################################################
+# Logging setting
+################################################################################
 class MaxLevelFilter(logging.Filter):
     """ Define a filter for logging msg
     >> limit msg < max level

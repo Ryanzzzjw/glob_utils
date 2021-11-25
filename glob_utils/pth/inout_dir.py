@@ -3,7 +3,9 @@ from glob_utils.pth.path_utils import dir_exist, get_dir
 from logging import getLogger
 logger = getLogger(__name__)
 
-
+################################################################################
+# management of global default directory
+################################################################################
 class DefaultDir(object):
     """Contain the default input- and output path of an application"""    
     _dirs: dict =None
@@ -40,9 +42,7 @@ class DefaultDir(object):
             else:
                 logger.info(f'"{dir_label}"-Directory is : {new_dir}')
 
-
 DEFAULT_DIRS= DefaultDir()   
-
 
 if __name__ == "__main__":
     """"""

@@ -1,3 +1,9 @@
+
+
+
+################################################################################
+# Custom flag
+################################################################################
 class CustomFlag(object):
     """Class responsible of creating and handling a flag (set, clear, is_set)"""
     
@@ -33,6 +39,10 @@ class CustomFlag(object):
     def _set_old(self, val:bool=None):
         self.flag_old=bool(self.flag) if not val else val
 
+
+################################################################################
+# custum Timer
+################################################################################
 class CustomTimer(object):
     max_time:float=1.0
     time_stp:float=0.1
