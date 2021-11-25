@@ -146,10 +146,10 @@ def mk_new_dir(dir_name:str, parent_dir:str= None )-> str:
     if not parent_dir:
         parent_dir=os.getcwd()
 
-    dir_exist(parent_dir, create_auto=True)
+    dir_exist(parent_dir, create_auto=True) #create if not exist
 
     new_dir_path= os.path.join(parent_dir, dir_name)
-    os.mkdir(new_dir_path)
+    dir_exist(new_dir_path, create_auto=True) #create if not exist
 
     return new_dir_path
 
