@@ -220,11 +220,33 @@ def save_as_pickle(file_path, obj, append_ext=True)->None:
 
 def load_pickle(file_path, obj=None)->Any:
     with open(file_path, 'rb') as file:
-        loaded_class = pickle.load(file)
+        loaded_obj = pickle.load(file)
     logging_file_loaded(file_path)
     if not obj:
-        return loaded_class
-    set_existing_attrs(obj, loaded_class)
+        return loaded_obj
+    set_existing_attrs(obj, loaded_obj)
+    return obj
+
+def load_pickle_app(file_path, obj=None):
+    """[summary]
+
+    Args:
+        filename ([type]): [description]
+        class2upload ([type], optional): [description]. Defaults to None.
+        verbose (bool, optional): [description]. Defaults to True.
+
+    Returns:
+        [type]: [description]
+    """
+    if os.path.getsize(file_path) == 0:
+        raise EmptyFileError(f'{file_path} - File empty!')
+
+    with open(file_path, 'rb') as file:
+        loaded_obj = pickle.load(file)
+    logging_file_loaded(file_path)
+    if not obj:
+        return loaded_obj
+    set_attributes(obj,loaded_obj)
     return obj
 
 
@@ -338,12 +360,12 @@ def set_existing_attrs(obj, new_obj)->None:
         if key in obj.__dict__.keys():
             setattr(obj,key, getattr(new_obj,key))
 
-def set_attributes(class2upload,loaded_class) -> None:
-    if not isinstance(loaded_class, type(class2upload)):
-        raise DataLoadedNotCompatibleError(f'loaded data type{type(loaded_class,)}, expected type {type(class2upload)}')
+def set_attributes(obj,new_obj) -> None:
+    if not isinstance(new_obj, type(obj)):
+        raise DataLoadedNotCompatibleError(f'loaded data type{type(new_obj,)}, expected type {type(obj)}')
 
-    for key in loaded_class.__dict__.keys():
-        setattr(class2upload, key, getattr(loaded_class,key))
+    for key in new_obj.__dict__.keys():
+        setattr(obj, key, getattr(new_obj,key))
 
 # def log_saving(filename, class2save= None):
 #     if hasattr(class2save, 'type'):
