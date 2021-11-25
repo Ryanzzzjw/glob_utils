@@ -9,6 +9,7 @@ from typing import Union
 
 from logging import getLogger
 from glob_utils.files.files import FileExt
+import time
 
 logger = getLogger(__name__)
 
@@ -16,15 +17,91 @@ class OpenDialogDirCancelledException(Exception):
     """"""
 
 FORMAT_DATE_TIME= "%Y%m%d_%H%M%S"
+FORMAT_TIME= "%Hh%Mm%Ss"
 
-def get_date_time()->str:
+################################################################################
+# Date time 
+################################################################################
+
+
+def get_datetime_s()->str:
+    """Return actual datetime as str
+    Format datetime is defined in FORMAT_DATE_TIME
+
+    Returns:
+        str: actual datetime
+    """    
     _now = datetime.datetime.now()
     return _now.strftime(FORMAT_DATE_TIME)
 
-def get_POSIX_path(path:str)->str:
+def get_time()->float:
+    """Return actual time as float
 
+    Returns:
+        float: actual time
+    """    
+    return time.time()
+
+DATETIME_APPENDIX_DELIMITER= '_'
+
+def append_date_time(string:str, datetime:str=None) -> str:
+    """Append datetime to a string, if datetime is not given actual date time
+    will be appended. Also if the string contains already at its end a 
+    datetime, this will be replaced 
+
+    Args:
+        s (str): String to be appended
+        datetime (str, optional): datetime to append. Defaults to `None`.
+
+    Returns:
+        str: appended string with a datetime  
+    """    
+
+    string,_= split_appendix_date_time(string)
+
+    if string:
+        string=f'{string}{DATETIME_APPENDIX_DELIMITER}'
+    return f'{string}{datetime}' if datetime else f'{string}{get_datetime_s()}'
+
+def split_appendix_date_time(string:str)-> tuple[str,str]:
+    """Split string in a string_without_datetime and datetime_s
+
+    If string is a datetime (eg. from get_datetime_s())
+    'string_without_datetime' will return `''`
+
+    Args:
+        string (str): string to split
+
+    Returns:
+        tuple[str,str]: (string_without_datetime, datetime_s)
+    """    
+    length= len(get_datetime_s())
+    string_without_datetime= string
+    datetime_s= ''
+    if len(string)>= length:
+        try:
+            datetime_s= string[-length:]
+            datetime.datetime.strptime(datetime_s, FORMAT_DATE_TIME)
+            string_without_datetime= string[:-length]
+            # if not string_without_datetime: # 
+            #     string_without_datetime=''
+        except ValueError:
+            datetime_s= ''
+    if string_without_datetime[-1]==DATETIME_APPENDIX_DELIMITER:
+        string_without_datetime= string_without_datetime[:-2]
+
+    return string_without_datetime, datetime_s
+
+################################################################################
+# Paths
+################################################################################
+
+def get_POSIX_path(path:str)->str:
     return path.replace('\\','/')
 
+################################################################################
+#Directory 
+################################################################################
 
 def dir_exist(dir_path:str, create_auto:bool=False)->bool:
     """Test if a directory exist
@@ -92,219 +169,16 @@ def get_dir(title:str='Select a directory', initialdir:str=None)->str:
         raise OpenDialogDirCancelledException()
     return dir_path    
 
-# def get_file(file_types=[("All files","*.*")], verbose:bool= False, initialdir:str=None, title:str= '', split:bool=True):
-#     """used to get select files using gui (multiple types of file can be set!)
-
-#     Args:
-#         filetypes (list, optional): [description]. Defaults to [("All files","*.*")].
-#         verbose (bool, optional): [description]. Defaults to True.
-#         path ([type], optional): [description]. Defaults to None.
-
-#     Returns:
-#         [type]: [description]
-#     """
-
-#     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
-
-#     # show an "Open" dialog box and return the path to the selected file
-#     file_path = askopenfilename(
-#         initialdir=initialdir or os.getcwd(),
-#         filetypes=file_types,
-#         title=title) 
-#     print(file_path)
-#     if not file_path:
-#         raise DialogCancelledException()
-#     if not split:
-#         return file_path
-#     path, filename = os.path.split(file_path)
-
-#     return path, filename
-    
-# def verify_file(file_path:str, extension:Union[str, FileExt]):
-#     """[summary]
-
-#     Args:
-#         path ([type]): [description]
-#         extension ([type]): [description]
-
-#     Returns:
-#         [type]: [description]
-#     """
-#     path_out=''
-#     if not os.path.isfile(file_path):
-#         logger.debug(f'File "{file_path}" does not exist or is not a file!')
-#         return path_out
-#     _, file_extension = os.path.splitext(file_path)
-#     if file_extension== f'{extension}':
-#         path_out= file_path
-#     return path_out
-
-# def save_as_pickle(file_path, class2save, verbose=False, append_ext=True):
-#     """
-#     """
-#     file_path= append_extention(file_path, FileExt.pkl) if append_ext else file_path
-#     with open(file_path, 'wb') as file:
-#         pickle.dump(class2save, file, pickle.HIGHEST_PROTOCOL)
-#     print_saving_verbose(file_path, class2save, verbose)
-
-# def save_as_txt(file_path, class2save, verbose=True, add_ext=True):
-#     """[summary]
-
-#     Args:
-#         filename ([type]): [description]
-#         class2save ([type]): [description]
-#         verbose (bool, optional): [description]. Defaults to True.
-#         add_ext (bool, optional): [description]. Defaults to True.
-#     """
-#     file_path= append_extention(file_path, FileExt.txt) if add_ext else file_path
-    
-#     list_of_strings = []
-#     if isinstance(class2save,str):
-#         list_of_strings.append(class2save)
-#     elif isinstance(class2save, list):
-#         for item in class2save:
-#             list_of_strings.append(f'{item}')
-#     elif isinstance(class2save, dict):
-#         list_of_strings.append('Dictionary form:')
-#         list_of_strings.append(json.dumps(class2save))
-#         list_of_strings.append('\n\nSingle attributes:')
-#         list_of_strings.extend([f'{key} = {class2save[key]},' for key in class2save ])      
-#     else:
-#         tmp_dict= class2save.__dict__
-#         list_of_strings.append('Dictionary form:')
-#         list_of_strings.append(json.dumps(class2save.__dict__))
-#         list_of_strings.append('\n\nSingle attributes:')
-#         single_attrs= [f'{key} = {tmp_dict[key]}' for key in class2save.__dict__ ]
-#         single_attrs= [ attr if len(attr)< 200 else f'{attr[:200]}...' for attr in single_attrs]
-#         list_of_strings.extend(single_attrs)
-
-#     with open(file_path, 'w') as file:
-#         [ file.write(f'{st}\n') for st in list_of_strings ]
-
-#     # print_saving_verbose(filepath, class2save, verbose)
-
-# def append_extention(file_path:str, ext:Union[str, FileExt])->str:
-#     """ Append and or replace extention to the file path
-    
-#     Args:
-#         filepath (str): path of the file
-#         ext (Union[str, FileExt]): extention 
-
-#     Returns:
-#         str: path of the file with extention
-#     """    
-#     return f'{os.path.splitext(file_path)[0]}{ext}'
-
-# def read_txt(filepath):
-#     with open(filepath, 'r') as file:
-#         lines = file.readlines()
-
-#     if 'Dictionary form:' in lines[0]:
-#         return json.loads(lines[1].replace('\n', ''))
-
-# def print_saving_verbose(filename, class2save= None, verbose=True):
-#     """[summary]
-
-#     Args:
-#         filename ([type]): [description]
-#         class2save ([type], optional): [description]. Defaults to None.
-#         verbose (bool, optional): [description]. Defaults to True.
-#     """
-
-#     if verbose:
-#         if hasattr(class2save, 'type'):
-#             print('\n{} saved in : ...{}'.format(class2save.type, filename[-50:]))
-#         else:
-#             print('\n Some data were saved in : ...{}'.format(filename[-50:]))
-
-# def load_pickle(filename, class2upload=None):
-#     """[summary]
-
-#     Args:
-#         filename ([type]): [description]
-#         class2upload ([type], optional): [description]. Defaults to None.
-#         verbose (bool, optional): [description]. Defaults to True.
-
-#     Returns:
-#         [type]: [description]
-#     """
-
-#     with open(filename, 'rb') as file:
-#         loaded_class = pickle.load(file)
-#     # print_loading_verbose(filename, loaded_class, verbose)
-#     if not class2upload:
-#         return loaded_class
-#     set_existing_attrs(class2upload, loaded_class)
-#     return class2upload
-
-# def set_existing_attrs(class2upload, newclass):
-
-#     for key in newclass.__dict__.keys():
-#             if key in class2upload.__dict__.keys():
-#                 setattr(class2upload,key, getattr(newclass,key))
-
-#     # for key in class2upload.__dict__.keys():
-#     #         setattr(class2upload, key, getattr(newclass,key))
-
-
-# def print_loading_verbose(filename, classloaded= None, verbose=True):
-#     """[summary]
-
-#     Args:
-#         filename ([type]): [description]
-#         classloaded ([type], optional): [description]. Defaults to None.
-#         verbose (bool, optional): [description]. Defaults to True.
-#     """
-#     if verbose:
-#         if hasattr(classloaded, 'type'):
-#             print('\n{} object loaded from : ...{}'.format(classloaded.type, filename[-50:]))
-#         else:
-#             print('\nSome data were loaded from : ...{}'.format(filename[-50:]))
-
-# class LoadCancelledException(Exception):
-#     """"""
-# class WrongFileTypeSelectedError(Exception):
-#     """"""
-
-# def get_file_dir_path( file_path:str='', extension:str=FileExt.txt.value, **kwargs):
-#     """
-
-#     Args:
-#         file_path (str, optional): [description]. Defaults to ''.
-#         extension ([type], optional): [description]. Defaults to const.EXT_MAT.
-
-#     Raises:
-#         LoadCancelledException: [description]
-#         WrongFileTypeSelectedError: [description]
-
-#     Returns:
-#         [type]: [description]
-#     """
-#     title= kwargs.pop('title') if 'title' in kwargs else None # pop title
-
-#     file_path= verify_file(file_path, extension=extension)        
-#     if not file_path:
-#         try: 
-#             file_path =get_file(
-#                 title=title or f'Please select *{extension} files',
-#                 file_types=[(f"{extension}-file",f"*{extension}")],
-#                 split=False,**kwargs)
-#         except DialogCancelledException:
-#             raise LoadCancelledException('Loading aborted from user')
-#     dir_path=os.path.split(file_path)[0]
-
-#     if not verify_file(file_path, extension=extension):
-#         raise WrongFileTypeSelectedError('User selected wrong file!')
-
-#     return dir_path , file_path
-
-
-
 
 if __name__ == "__main__":
     from glob_utils.log.log  import change_level_logging, main_log
     import logging
     main_log()
     change_level_logging(logging.DEBUG)
+
+    s=get_datetime_s()
+    print(s)
+    print(split_appendix_date_time(s))
+
 
     
