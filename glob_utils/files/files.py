@@ -312,7 +312,11 @@ def save_as_txt(file_path, obj, append_ext=True)->None:
     with open(file_path, 'w') as file:
         [ file.write(f'{st}\n') for st in list_of_strings ]
 
-def read_txt(file_path:str)-> Any:
+
+def read_txt(file_path:str, append_ext:bool=True)-> Any:
+    #TODO add checking txt extension an d addd looging and test appedning
+    file_path= append_extension(file_path, FileExt.txt) if append_ext else file_path
+    
     with open(file_path, 'r') as file:
         lines = file.readlines()
     logger.debug(f'{lines=}')
