@@ -64,7 +64,9 @@ class DefaultDir(object):
     def __init__(self) -> None:
         self._dirs = {}
 
-    def get(self, key:str=None)-> Union[str, dict]:
+    def get(self, key:Union[str, Enum]=None)-> Union[str, dict]:
+        if isinstance(key, Enum):
+            key= key.value
         return self._dirs[key] if key else self._dirs
 
     def add_dir(self, dir_label:str, dir_path:str):
