@@ -288,7 +288,6 @@ def load_pickle_app(file_path, obj=None):
 ################################################################################
 def save_as_txt(file_path, obj, append_ext=True)->None:
     file_path= append_extension(file_path, FileExt.txt) if append_ext else file_path
-    
     list_of_strings = []
     if isinstance(obj,str):
         list_of_strings.append(obj)
@@ -314,9 +313,7 @@ def save_as_txt(file_path, obj, append_ext=True)->None:
 
 
 def read_txt(file_path:str, append_ext:bool=True)-> Any:
-    #TODO add checking txt extension an d addd looging and test appedning
-    file_path= append_extension(file_path, FileExt.txt) if append_ext else file_path
-    
+    is_file_with_ext(file_path, FileExt.txt, True)
     with open(file_path, 'r') as file:
         lines = file.readlines()
     logger.debug(f'{lines=}')
