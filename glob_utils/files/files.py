@@ -79,7 +79,8 @@ def dialog_get_file(
     Returns:
         [str]: path of the file selected
     """    
-    Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+    root=Tk()
+    root.withdraw() # we don't want a full GUI, so keep the root window from appearing
 
     # show an "Open" dialog box and return the path to the selected file
     file_path = askopenfilename(
@@ -87,6 +88,7 @@ def dialog_get_file(
         filetypes=file_types or [("All files","*.*")],
         title=title or 'Select a file',
         **kwargs)
+    root.destroy()
 
     if not file_path:
         raise OpenDialogFileCancelledException(

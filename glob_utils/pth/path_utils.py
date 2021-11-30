@@ -129,7 +129,6 @@ def dir_exist(dir_path:str, create_auto:bool=False, raise_error:bool=False)->boo
         os.mkdir(dir_path)
         logger.info(f'Directory: {dir_path} - created')
         exist= True
-    
     return exist
 
 def mk_new_dir(dir_name:str, parent_dir:str= None )-> str:
@@ -167,11 +166,15 @@ def get_dir(title:str='Select a directory', initialdir:str=None)->str:
         str: a directory path selected by a user
     """    
     
-    Tk().withdraw()
+    # Tk().withdraw()
+    root=Tk()
+    root.withdraw() # we don't want a full GUI, so keep the root window from appearing
+
     # show an "Open" dialog box and return the path to the selected directory
     dir_path = askdirectory(
         initialdir=initialdir or os.getcwd(),
         title= title)
+    root.destroy()
     if not dir_path :
         raise OpenDialogDirCancelledException(
             'Open dialog box for directory selection - Cancelled')
