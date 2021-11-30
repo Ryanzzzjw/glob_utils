@@ -241,7 +241,43 @@ def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None)-> list[
         raise FileNotFoundError(f'No {ext}-file found in {dir_path=}')
 
     return file_names
-    
+
+def find_file(file_name:str, dir_path:str)-> Union[list[str], None]:
+    """[summary]
+
+    Args:
+        file_name (str): [description]
+        dir_path (str): [description]
+
+    Raises:
+        FileNotFoundError: [description]
+
+    Returns:
+        Union[list[str], None]: [description]
+    """    
+    if not file_name or not dir_path:
+        logger.error(f'cannot find file "{file_name}" in: {dir_path=} ...')
+        return None
+    logger.info(f'Start searching for file "{file_name}" in: {dir_path=} ...')
+    file_paths= [
+        os.path.join(root, file_name)
+        for root, _, files in os.walk(dir_path)
+        if file_name in files
+    ]
+
+    logger.info('Stop searching for file ...')
+    logger.info(f'files found: {file_paths}')
+    if not file_paths: # if no files are contains
+        raise FileNotFoundError(f'File "{file_name}" not found in {dir_path=}')
+    return file_paths
+
+def find_all(name, path):
+    return [
+        os.path.join(root, name)
+        for root, dirs, files in os.walk(path)
+        if name in files
+    ]
+
 ################################################################################
 # Save/Load pkl files
 ################################################################################
