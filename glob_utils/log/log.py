@@ -2,8 +2,8 @@
 
 import logging
 import sys
-import os
 
+# import coloredlogs
 
 from glob_utils.files.files import FileExt, append_extension
 
@@ -35,7 +35,8 @@ def main_log(logfile:str='debug.log')->None:
     # redirect messages to either stdout or stderr based on loglevel
     # stdout < logging.WARNING <= stderr
     format_long = logging.Formatter('%(asctime)s %(levelname)s [%(threadName)s] [%(module)s]: %(message)s')
-    format_short = logging.Formatter('%(levelname)s [%(module)s]: %(message)s')
+    
+    format_short = logging.Formatter('%(levelname)s [%(module)s]: %(message)s') #coloredlogs.ColoredFormatter
     
     logging_out_h = logging.StreamHandler(sys.stdout)
 
@@ -52,10 +53,13 @@ def main_log(logfile:str='debug.log')->None:
 
     # root logger, no __name__ as in submodules further down the hierarchy
     global logger
+    
     logger.addHandler(logging_out_h)
     logger.addHandler(logging_err_h)
     logger.addHandler(logging_file_h)
     logger.setLevel(logging.DEBUG)
+
+    
     
 def change_level_logging(level:int=logging.DEBUG)->None:
     """Modify the logging level
@@ -68,3 +72,8 @@ def change_level_logging(level:int=logging.DEBUG)->None:
 if __name__ == '__main__':
     main_log()
     msg = 'Training results will be found in : huirhguihruhguher'
+    logger.debug('Info msg')
+    logger.info('Info msg')
+    logger.warning('Info msg')
+    logger.error('Info msg')
+    logger.critical('Info msg')
