@@ -7,6 +7,7 @@ import json
 import datetime
 from typing import Any, Union
 from glob_utils.args.check_type import isstring
+from glob_utils.args.kwargs import kwargs_extract
 from glob_utils.log.msg_trans import highlight_msg
 
 
@@ -118,9 +119,11 @@ def dialog_get_file_with_ext(
     Returns:
         [str]: path of the file selected
     """ 
-    title= kwargs.pop('title') if 'title' in kwargs else None # pop title
+    title= kwargs_extract(kwargs, 'title', None) # pop title
     title= title or f'Please select *{ext} files' if ext else None
     file_types=[(f"{ext}-file",f"*{ext}")] if ext else None
+    file_types=kwargs_extract(kwargs, 'file_types', file_types)
+    
     file_path =dialog_get_file(
         title=title,
         file_types=file_types,
