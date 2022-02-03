@@ -49,11 +49,11 @@ class FileExt(Enum):
 # Dialog
 ################################################################################
 class OpenDialogFileCancelledException(Exception):
-    """"""
+    """Raised when User close UI dialog to abort or terminate selection"""
 class DataLoadedNotCompatibleError(Exception):
-    """"""
+    """Raised if the Data contained in a file does not correspond"""
 class EmptyFileError(Exception):
-    """"""
+    """Raised if a File is Empty"""
 
 def dialog_get_file(
     file_types:list=None,
@@ -218,7 +218,7 @@ def is_file_with_ext(path:str, ext:Union[str, FileExt]= None, raise_error:bool=F
     return path
 
 
-def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None)-> list[str]:
+def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None) -> list[str]:
     """List the names (not path) of files contained in a directory dir
     with a specific extension (if given)
 
@@ -235,7 +235,7 @@ def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None)-> list[
     """    
 
     dir_exist(dir_path=dir_path, raise_error=True)
-    file_names = [file for file in os.listdir(dir_path)]
+    file_names = list(os.listdir(dir_path))
     if ext:
         file_names = [file for file in os.listdir(dir_path) 
             if is_file_with_ext(path= os.path.join(dir_path, file), ext= ext)
@@ -245,51 +245,76 @@ def search_for_file_with_ext(dir_path:str, ext:Union[str, FileExt]=None)-> list[
 
     return file_names
 
-def find_file(file_name:str, dir_path:str)-> Union[list[str], None]:
-    """[summary]
+def find_file(filename:str=None, dir_path:str=None)-> Union[list[str], None]:
+    """ Scan dir_path to find files with filename
 
     Args:
-        file_name (str): [description]
-        dir_path (str): [description]
+        filename (str): filename to search for
+        dir_path (str): directory where to search
 
     Raises:
-        FileNotFoundError: [description]
+        FileNotFoundError: raised if the filname not found
 
     Returns:
-        Union[list[str], None]: [description]
+        Union[list[str], None]: return a list of the filepath
+        or None if nothing has been found
     """    
-    if not file_name or not dir_path:
-        logger.error(f'cannot find file "{file_name}" in: {dir_path=} ...')
+    if not filename or not dir_path: 
+        logger.error(f'cannot find file "{filename}" in: {dir_path=} ...')
         return None
-    logger.info(f'Start searching for file "{file_name}" in: {dir_path=} ...')
+    logger.info(f'Start searching for file "{filename}" in: {dir_path=} ...')
     file_paths= [
-        os.path.join(root, file_name)
+        os.path.join(root, filename)
         for root, _, files in os.walk(dir_path)
-        if file_name in files
+        if filename in files
     ]
-
     logger.info('Stop searching for file ...')
     logger.info(f'files found: {file_paths}')
     if not file_paths: # if no files are contains
-        raise FileNotFoundError(f'File "{file_name}" not found in {dir_path=}')
+        raise FileNotFoundError(f'File "{filename}" not found in {dir_path=}')
     return file_paths
 
-def find_all(name, path):
-    return [
-        os.path.join(root, name)
-        for root, dirs, files in os.walk(path)
-        if name in files
-    ]
+# def find_all(filename:str, path:str)->list[str]: NOT USED
+#     """ Scan a path and search for a filename
+
+#     Args:
+#         name (str): name of the file to found
+#         path (str): [description]
+
+#     Returns:
+#         list[str]: list of 
+#     """
+#     return [
+#         os.path.join(root, filename)
+#         for root, dirs, filenames in os.walk(path)
+#         if filename in filenames
+#     ]
 
 ################################################################################
 # Save/Load pkl files
 ################################################################################
-def save_as_pickle(file_path, obj, append_ext=True)->None:
-    file_path= append_extension(file_path, FileExt.pkl) if append_ext else file_path
+def save_as_pickle(file_path:str, obj:Any)->None:
+    """Save an object in a pkl-file
+
+    Args:
+        file_path (str): saving path
+        obj (Any): object to save
+    """
+    file_path= append_extension(file_path, FileExt.pkl)
     with open(file_path, 'wb') as file:
         pickle.dump(obj, file, pickle.HIGHEST_PROTOCOL)
 
-def load_pickle(file_path, obj=None)->Any:
+def load_pickle(file_path:str, obj:Any=None)->Any:
+    """Load an Object out of an pkl-file
+
+    Args:
+        file_path (str): pkl-file to load
+        obj (Any, optional): Object to update. Defaults to None.
+
+    Returns:
+        Any: loaded object or the passed object with updated attributes
+    """
+    is_file_with_ext(file_path, FileExt.pkl)
     with open(file_path, 'rb') as file:
         loaded_obj = pickle.load(file)
     logging_file_loaded(file_path)
@@ -298,63 +323,87 @@ def load_pickle(file_path, obj=None)->Any:
     set_existing_attrs(obj, loaded_obj)
     return obj
 
-def load_pickle_app(file_path, obj=None):
-    """[summary]
+def load_pickle_app(file_path:str, obj:Any=None)->Any:
+    """Load an Object out of an pkl-file (with EmptyFileError)
 
     Args:
-        filename ([type]): [description]
-        class2upload ([type], optional): [description]. Defaults to None.
-        verbose (bool, optional): [description]. Defaults to True.
+        file_path (str): pkl-file to load
+        obj (Any, optional): Object to update. Defaults to None.
+
+    Raises:
+        EmptyFileError: if file is an empty file
 
     Returns:
-        [type]: [description]
+        Any: loaded object or the passed object with updated attributes
+
     """
+
     if os.path.getsize(file_path) == 0:
         raise EmptyFileError(f'{file_path} - File empty!')
 
-    with open(file_path, 'rb') as file:
-        loaded_obj = pickle.load(file)
-    logging_file_loaded(file_path)
-    if not obj:
-        return loaded_obj
-    set_attributes(obj,loaded_obj)
-    return obj
+    return load_pickle(file_path, obj)
 
 
     # for key in class2upload.__dict__.keys():
     #         setattr(class2upload, key, getattr(newclass,key))
 
 ################################################################################
-# Save/Load txt files
+# Save/Load txt files with json data
 ################################################################################
-def save_as_txt(file_path, obj, append_ext=True)->None:
-    file_path= append_extension(file_path, FileExt.txt) if append_ext else file_path
-    list_of_strings = []
+def save_as_txt(file_path:str, obj:Any)->None:
+    """Save an object in a txt-file
+
+    if obj 
+        (str)  -> line[0] = obj
+        (list) -> line[i] = obj[i] (item_i)
+        (dict) -> line[0] ='Dictionary form:'
+                  line[1] = json of the dict
+                  line[5] = Single attributes:' # list attrs for better readbility
+                  line[6:] = 'key= value'
+        (cls) -> line[0] ='Dictionary form:'
+                  line[1] = json of the cls.__dict__
+                  line[5] = Single attributes:' # list attrs for better readbility
+                  line[6:] = 'key= value'
+        
+    Args:
+        file_path (str): saving path
+        obj (Any): object to save
+    """
+    file_path= append_extension(file_path, FileExt.txt)
+    lines = []
     if isinstance(obj,str):
-        list_of_strings.append(obj)
+        lines.append(obj)
     elif isinstance(obj, list):
         for item in obj:
-            list_of_strings.append(f'{item}')
+            lines.append(f'{item}')
     elif isinstance(obj, dict):
-        list_of_strings.append('Dictionary form:')
-        list_of_strings.append(json.dumps(obj))
-        list_of_strings.append('\n\nSingle attributes:')
-        list_of_strings.extend([f'{key} = {obj[key]},' for key in obj ])      
+        lines.append('Dictionary form:')
+        lines.append(json.dumps(obj))
+        lines.append('\n\nSingle attributes:')
+        lines.extend([f'{key} = {obj[key]},' for key in obj ])      
     else:
         tmp_dict= obj.__dict__
-        list_of_strings.append('Dictionary form:')
-        list_of_strings.append(json.dumps(obj.__dict__))
-        list_of_strings.append('\n\nSingle attributes:')
+        lines.append('Dictionary form:')
+        lines.append(json.dumps(obj.__dict__))
+        lines.append('\n\nSingle attributes:')
         single_attrs= [f'{key} = {tmp_dict[key]}' for key in obj.__dict__ ]
         single_attrs= [ attr if len(attr)< 200 else f'{attr[:200]}...' for attr in single_attrs]
-        list_of_strings.extend(single_attrs)
+        lines.extend(single_attrs)
 
     with open(file_path, 'w') as file:
-        [ file.write(f'{st}\n') for st in list_of_strings ]
+        [ file.write(f'{line}\n') for line in lines ]
 
 
-def read_txt(file_path:str, append_ext:bool=True)-> Any:
-    is_file_with_ext(file_path, FileExt.txt, True)
+def read_txt(file_path:str)-> Any:
+    """Load a txt file with json data
+
+    Args:
+        file_path (str): file to load
+
+    Returns:
+        Any: return dict of the json saved data if found. None otherwise
+    """
+    is_file_with_ext(file_path, FileExt.txt)
     with open(file_path, 'r') as file:
         lines = file.readlines()
     logger.debug(f'{lines=}')
@@ -369,13 +418,19 @@ def read_txt(file_path:str, append_ext:bool=True)-> Any:
 ################################################################################
 # Save/Load mat files
 ################################################################################
-def save_as_mat(file_path:str, data:dict, append_ext:bool=True)->None:
+def save_as_mat(file_path:str, data:dict)->None:
+    """Save data in a mat-file
+
+    Args:
+        file_path (str): saving path
+        data (dict): dictionary to save
+    """
 
     from scipy.io.matlab.mio import savemat
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in mat file - failed, data should be a dict')
         return
-    savemat(file_path,data, appendmat=append_ext)
+    savemat(file_path,data)
 
 def load_mat(file_path:str, logging:bool= True)-> dict:
     """Load a matlab mat-file.
@@ -394,7 +449,7 @@ def load_mat(file_path:str, logging:bool= True)-> dict:
     """    
     from scipy.io.matlab.mio import loadmat
     if not check_file(file_path, FileExt.mat):
-        return
+        return None
     file = loadmat(file_path)
     var = {key: file[key] for key in file.keys() if "__" not in key}
     if logging:
@@ -430,17 +485,32 @@ def append_extension(path:str, ext:Union[str, FileExt]= None)->str:
     """    
     return f'{os.path.splitext(path)[0]}{ext}' if ext is not None else path
 
-def set_existing_attrs(obj, new_obj)->None:
-    for key in new_obj.__dict__.keys():
-        if key in obj.__dict__.keys():
-            setattr(obj,key, getattr(new_obj,key))
+def set_existing_attrs(old_obj:Any, new_obj:Any)->None:
+    """[summary]
 
-def set_attributes(obj,new_obj) -> None:
-    if not isinstance(new_obj, type(obj)):
-        raise DataLoadedNotCompatibleError(f'loaded data type{type(new_obj,)}, expected type {type(obj)}')
+    Args:
+        old_obj (Any): [description]
+        new_obj (Any): [description]
+    """
+    for key in new_obj.__dict__.keys():
+        if key in old_obj.__dict__.keys():
+            setattr(old_obj,key, getattr(new_obj,key))
+
+def set_attributes(old_obj:Any, new_obj:Any) -> None:
+    """[summary]
+
+    Args:
+        old_obj (Any): [description]
+        new_obj (Any): [description]
+
+    Raises:
+        DataLoadedNotCompatibleError: [description]
+    """
+    if not isinstance(new_obj, type(old_obj)):
+        raise DataLoadedNotCompatibleError(f'loaded data type{type(new_obj,)}, expected type {type(old_obj)}')
 
     for key in new_obj.__dict__.keys():
-        setattr(obj, key, getattr(new_obj,key))
+        setattr(old_obj, key, getattr(new_obj,key))
 
 # def log_saving(filename, class2save= None):
 #     if hasattr(class2save, 'type'):
@@ -455,7 +525,12 @@ def set_attributes(obj,new_obj) -> None:
 
 
 
-def logging_file_loaded(file_path:str=None):
+def logging_file_loaded(file_path:str=None)->None:
+    """[summary]
+
+    Args:
+        file_path (str, optional): [description]. Defaults to None.
+    """
     dir_path, filename= os.path.split(file_path)
     msg=f'Loading file: {filename}\n(dir: ...{dir_path})'
     logger.info(highlight_msg(msg))
@@ -465,3 +540,5 @@ if __name__ == "__main__":
     main_log()
     f=f'f {FileExt.txt}'
     print(f,  FileExt.mat )
+
+    print(find_file())

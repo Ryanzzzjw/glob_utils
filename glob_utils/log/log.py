@@ -58,16 +58,29 @@ def main_log(logfile:str='debug.log')->None:
     logger.addHandler(logging_err_h)
     logger.addHandler(logging_file_h)
     logger.setLevel(logging.DEBUG)
+    logger.hasHandlers()
 
+def check_logger_exist()-> bool:
+    """Check if the logger exist
+    (if handlers were defined)
+
+    Returns:
+        bool: `True` if logger exist/has handlers, otherwise `False`
+    """
+    return logger.hasHandlers()
     
-    
-def change_level_logging(level:int=logging.DEBUG)->None:
+def change_level_logging(level:int=logging.DEBUG)->int:
     """Modify the logging level
 
     Args:
         level (int, optional): new logging level. Defaults to logging.DEBUG.
-    """    
+
+    Returns:
+        int: level before change
+    """
+    actual_level= logger.getEffectiveLevel()
     logger.setLevel(level)
+    return actual_level
 
 if __name__ == '__main__':
     main_log()
