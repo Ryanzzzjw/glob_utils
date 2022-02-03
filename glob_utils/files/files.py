@@ -10,6 +10,8 @@ from glob_utils.args.check_type import isstring
 from glob_utils.args.kwargs import kwargs_extract
 from glob_utils.log.msg_trans import highlight_msg
 
+import scipy.io.matlab.mio
+
 
 
 
@@ -38,6 +40,7 @@ class FileExt(Enum):
     pkl= '.pkl' # pickle files
     txt= '.txt' # text files
     log= '.log' # log files
+    csv= '.csv' # csv files
 
     def __repr__(self):
       return self.value
@@ -426,11 +429,10 @@ def save_as_mat(file_path:str, data:dict)->None:
         data (dict): dictionary to save
     """
 
-    from scipy.io.matlab.mio import savemat
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in mat file - failed, data should be a dict')
         return
-    savemat(file_path,data)
+    scipy.io.matlab.mio.savemat(file_path,data)
 
 def load_mat(file_path:str, logging:bool= True)-> dict:
     """Load a matlab mat-file.
@@ -447,10 +449,10 @@ def load_mat(file_path:str, logging:bool= True)-> dict:
     Returns:
         dict: variables contained in the mat-file
     """    
-    from scipy.io.matlab.mio import loadmat
+
     if not check_file(file_path, FileExt.mat):
         return None
-    file = loadmat(file_path)
+    file = scipy.io.matlab.mio.loadmat(file_path)
     var = {key: file[key] for key in file.keys() if "__" not in key}
     if logging:
         logging_file_loaded(file_path)
@@ -468,6 +470,48 @@ def load_mat(file_path:str, logging:bool= True)-> dict:
     
 #     return var, file_path
 
+################################################################################
+# Save/Load csv files
+################################################################################
+def save_as_csv(file_path:str, data:dict)->None:
+    """Save data in a csv-file
+
+    Args:
+        file_path (str): saving path
+        data (dict): dictionary to save
+    """
+
+    #TODO
+
+def load_csv(file_path:str, logging:bool= True)-> dict:
+    """Load a matlab mat-file.
+
+    All variables contained in a mat-file (except the private var) are  
+    return in a dictionnary
+
+    Args:
+        file_path (str): path of matlab mat-file to load
+        logging (bool, optional): if set to 'True' logging will be recorded
+            info: file loaded info
+            debug: show the keys of the returned dict
+
+    Returns:
+        dict: variables contained in the mat-file
+    """    
+
+    if not check_file(file_path, FileExt.csv):
+        return None
+    var = {}
+    return var
+
+
+
+# def load_file(file_path:str='', ext:Union[str, FileExt]=FileExt.mat, **kwargs):
+#     """load all variables contained in a mat file in a dictionnary,
+#     return the dict and the file_path (in case of selection by user)"""
+#     _ , file_path= get_file_dir_path(file_path, ext=ext, **kwargs)
+    
+#     return var, file_path
 
 ################################################################################
 # Methods
