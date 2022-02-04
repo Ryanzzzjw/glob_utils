@@ -1,5 +1,4 @@
 
-
 from typing import Any
 
 from glob_utils.args.check_type import isstring

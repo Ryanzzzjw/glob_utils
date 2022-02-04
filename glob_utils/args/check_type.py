@@ -1,13 +1,4 @@
-
-
-
-
-
-
-
-
 from typing import Any
-
 
 def isstring(var:Any, raise_error:bool=False)-> bool:
     """Check if var is a string
