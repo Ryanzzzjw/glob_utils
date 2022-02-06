@@ -9,6 +9,7 @@ from typing import Any, Union
 from glob_utils.args.check_type import isstring
 from glob_utils.args.kwargs import kwargs_extract
 from glob_utils.log.msg_trans import highlight_msg
+import pandas as pd
 
 import scipy.io.matlab.mio
 
@@ -480,29 +481,29 @@ def save_as_csv(file_path:str, data:dict)->None:
         file_path (str): saving path
         data (dict): dictionary to save
     """
+    if not isinstance(data, dict):
+        logger.error(f'Saving of {data=} in csv file - failed, data should be a dict')
+        return
+    df = pd.DataFrame.from_dict(data) 
+    df.to_csv (file_path, index = False, header=True)
 
-    #TODO
+def load_csv(file_path:str)-> dict:
+    """Load a csv-file.
 
-def load_csv(file_path:str, logging:bool= True)-> dict:
-    """Load a matlab mat-file.
-
-    All variables contained in a mat-file (except the private var) are  
+    All variables contained in a csv-file (except the private var) are  
     return in a dictionnary
 
     Args:
-        file_path (str): path of matlab mat-file to load
-        logging (bool, optional): if set to 'True' logging will be recorded
-            info: file loaded info
-            debug: show the keys of the returned dict
+        file_path (str): path of csv to load
 
     Returns:
-        dict: variables contained in the mat-file
+        dict: variables contained in the csv-file
     """    
-
     if not check_file(file_path, FileExt.csv):
         return None
-    var = {}
+    var = pd.read_csv(file_path).to_dict('list')
     return var
+
 
 
 
