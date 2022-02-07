@@ -479,15 +479,19 @@ def save_as_csv(file_path:str, data:dict)->None:
 
     Args:
         file_path (str): saving path
-        data (dict): dictionary to save
+        data (dict): dictionary of ndarray with size(-1, 1) to save
     """
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in csv file - failed, data should be a dict')
         return
-    df = pd.DataFrame.from_dict(data) 
-    df.to_csv (file_path, index = False, header=True)
+    
 
-def load_csv(file_path:str)-> dict:
+    file_path= append_extension(file_path, FileExt.csv)
+
+    df = pd.DataFrame.from_dict(data) 
+    df.to_csv(file_path, index = False, header=True)
+
+def load_csv(file_path:str) -> dict:
     """Load a csv-file.
 
     All variables contained in a csv-file (except the private var) are  
@@ -501,8 +505,7 @@ def load_csv(file_path:str)-> dict:
     """    
     if not check_file(file_path, FileExt.csv):
         return None
-    var = pd.read_csv(file_path).to_dict('list')
-    return var
+    return pd.read_csv(file_path).to_dict('list')
 
 
 
