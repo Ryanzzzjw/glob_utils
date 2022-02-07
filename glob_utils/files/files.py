@@ -489,7 +489,7 @@ def save_as_csv(file_path:str, data:dict)->None:
     file_path= append_extension(file_path, FileExt.csv)
 
     df = pd.DataFrame.from_dict(data) 
-    df.to_csv(file_path, index = False, header=True)
+    df.to_csv(file_path, index = False, header=True,)
 
 def load_csv(file_path:str) -> dict:
     """Load a csv-file.
