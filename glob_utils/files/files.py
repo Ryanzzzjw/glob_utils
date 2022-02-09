@@ -10,6 +10,7 @@ from glob_utils.args.check_type import isstring
 from glob_utils.args.kwargs import kwargs_extract
 from glob_utils.log.msg_trans import highlight_msg
 import pandas as pd
+import numpy as np
 
 import scipy.io.matlab.mio
 
@@ -479,12 +480,19 @@ def save_as_csv(file_path:str, data:dict)->None:
 
     Args:
         file_path (str): saving path
-        data (dict): dictionary of ndarray with size(-1, 1) to save
+        data (dict): dictionary of 1-D ndarray. The length of data should be the same.
     """
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in csv file - failed, data should be a dict')
         return
     
+    # convert list to 1-D nparray if values of dict is list or nested list
+    for key, values in data.items():
+        if isinstance(values, list):
+            data[key]= np.hstack(values)
+    
+    # convert to 1-D array if dim not 1
+    data = {k: v.flatten() for k,v in data.items()} 
 
     file_path= append_extension(file_path, FileExt.csv)
 
