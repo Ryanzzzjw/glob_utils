@@ -480,7 +480,8 @@ def save_as_csv(file_path:str, data:dict)->None:
 
     Args:
         file_path (str): saving path
-        data (dict): dictionary of 1-D ndarray. The length of data should be the same.
+        data (dict): The values of dict should be ndarray or list. And it will be converted to 1-D array for saving 
+        csv-file. The length of data should be the same.
     """
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in csv file - failed, data should be a dict')
