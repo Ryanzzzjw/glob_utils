@@ -15,30 +15,73 @@ class CustomFlag(object):
         """Set the flag"""
         self._set_old()
         self.flag=val
+
     def set_edge_up(self):
         """Set the flag"""
         self._set_old(False)
         self.flag=True
+
     def clear(self):
         """clear the flag"""
         self._set_old()
         self.flag=False
+
     def is_set(self):
         """Return value of the flag"""
         return self.flag
+
     def has_changed(self):
         return self.flag!=self.flag_old
+
     def is_raising_edge(self):
         return self.has_changed() and self.is_set()
+
     def reset(self):
         self.flag_old:bool=False
         self.flag:bool=False
 
     def ack_change(self):
         self._set_old()
+
     def _set_old(self, val:bool=None):
         self.flag_old=bool(self.flag) if not val else val
 
+class MultiState(object):
+    """Class responsible of creating and handling a flag (set, clear, is_set)"""
+    
+    def __init__(self, states:list[int]) -> None:
+        super().__init__()
+        self.states = states
+        self.reset()
+        
+    def change_state(self, state:int):
+        """change the actual state"""
+        if state not in self.states:
+            raise ValueError(f'state should have the values {self.states}')
+        self._set_old()
+        self.state=state
+    
+    def is_set(self, state:int):
+        """Return value of the actual state"""
+        return self.state == state
+
+
+    def actual_state(self):
+        """Return value of the actual state"""
+        return self.state
+
+    def has_changed(self):
+        return self.state != self.state_old
+
+    def reset(self):
+        self.state_old = None
+        self.state = None
+
+    def ack_change(self):
+        self._set_old()
+        
+    def _set_old(self):
+        self.state_old = self.state
 
 ################################################################################
 # custum Timer
