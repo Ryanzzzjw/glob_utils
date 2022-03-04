@@ -56,7 +56,7 @@ def eng(x:Union[float, int], unit:str='', format_str:str='.4g')-> str:
         str: represention of x in an engineer friendly notation with a unit and a prefix .
     """
     
-    if ~isinstance(x, (int, float)):
+    if not isinstance(x, (int, float)):
         raise TypeError('x should be an integer or a float')
 
     x= float(x)
@@ -71,10 +71,6 @@ def eng(x:Union[float, int], unit:str='', format_str:str='.4g')-> str:
         new_val=x
         exp3= 0
 
-<<<<<<< HEAD
-=======
-    print(a, exp3)
->>>>>>> 41c3b5ce0374a309da7cfddfaaf21d13b893e2b5
     return f'{str(format(new_val, format_str))} {UNIT_PREFIX[exp3]}{unit}'
 
 def powerise10(x:float)->Tuple[float, int]:
