@@ -355,7 +355,7 @@ def load_pickle_app(file_path:str, obj:Any=None)->Any:
 ################################################################################
 # Save/Load txt files with json data
 ################################################################################
-def save_as_txt(file_path:str, obj:Any)->None:
+def save_as_txt(file_path:str, obj:Any) -> None:
     """Save an object in a txt-file
 
     if obj 
@@ -379,18 +379,20 @@ def save_as_txt(file_path:str, obj:Any)->None:
     if isinstance(obj,str):
         lines.append(obj)
     elif isinstance(obj, list):
-        for item in obj:
-            lines.append(f'{item}')
+        lines.extend(f'{item}' for item in obj)
     elif isinstance(obj, dict):
-        lines.append('Dictionary form:')
-        lines.append(json.dumps(obj))
-        lines.append('\n\nSingle attributes:')
-        lines.extend([f'{key} = {obj[key]},' for key in obj ])      
+        lines.extend(('Dictionary form:', json.dumps(obj), '\n\nSingle attributes:'))
+        lines.extend([f'{key} = {obj[key]},' for key in obj ])
     else:
         tmp_dict= obj.__dict__
-        lines.append('Dictionary form:')
-        lines.append(json.dumps(obj.__dict__))
-        lines.append('\n\nSingle attributes:')
+        lines.extend(
+            (
+                'Dictionary form:',
+                json.dumps(obj.__dict__),
+                '\n\nSingle attributes:',
+            )
+        )
+
         single_attrs= [f'{key} = {tmp_dict[key]}' for key in obj.__dict__ ]
         single_attrs= [ attr if len(attr)< 200 else f'{attr[:200]}...' for attr in single_attrs]
         lines.extend(single_attrs)
@@ -436,7 +438,7 @@ def save_as_mat(file_path:str, data:dict)->None:
         return
     scipy.io.matlab.mio.savemat(file_path,data)
 
-def load_mat(file_path:str, logging:bool= True)-> dict:
+def load_mat(file_path:str, logging:bool= True) -> dict:
     """Load a matlab mat-file.
 
     All variables contained in a mat-file (except the private var) are  
@@ -455,7 +457,8 @@ def load_mat(file_path:str, logging:bool= True)-> dict:
     if not check_file(file_path, FileExt.mat):
         return None
     file = scipy.io.matlab.mio.loadmat(file_path)
-    var = {key: file[key] for key in file.keys() if "__" not in key}
+
+    var = {key: file[key] for key in file.keys() if "__" not in key[:2]}
     if logging:
         logging_file_loaded(file_path)
         # list_var_loaded= [str(k)+' : '+str(v) for k , v in var.items()]
