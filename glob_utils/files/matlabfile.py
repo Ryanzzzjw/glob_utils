@@ -17,6 +17,9 @@ import glob_utils.types.dict
 class MatFileStruct(object):
     
     separator:str='__'
+
+    def __init__(self, separator:str='__') -> None:
+        self.separator=separator
     
     def _extract_matfile(self, var_dict:dict, verbose:bool=False) -> dict:
         """
