@@ -456,7 +456,7 @@ def load_mat(file_path:str, logging:bool= True) -> dict:
 
     if not check_file(file_path, FileExt.mat):
         return None
-    file = scipy.io.matlab.mio.loadmat(file_path)
+    file = scipy.io.matlab.mio.loadmat(file_path,squeeze_me=True)
 
     var = {key: file[key] for key in file.keys() if "__" not in key[:2]}
     if logging:
