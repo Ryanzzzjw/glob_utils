@@ -6,7 +6,7 @@ from typing import Any
 
 import glob_utils.files.matlabfile
 import numpy as np
-import scipy
+import scipy.sparse
 
 logger = getLogger(__name__)
 
@@ -152,8 +152,8 @@ def convert2python(val) -> Any:
     if isinstance(val, (str, int, float, dict, list)):
         return val
 
-    if isinstance(val,scipy.sparse.csc.csc_matrix):
-        return np.array(val)
+    if isinstance(val,scipy.sparse.csc_matrix):
+        return val
 
     if isinstance(val, np.ndarray) and val.size==0:
         return None
