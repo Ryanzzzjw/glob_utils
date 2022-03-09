@@ -36,7 +36,7 @@ class MatFileStruct(object):
         struct=self.gather_top_key(struct)
 
         if verbose:
-            glob_utils.types.dict.visualise(struct)
+            glob_utils.types.dict.visualise(struct,disp_val= True)
 
         return struct
 
