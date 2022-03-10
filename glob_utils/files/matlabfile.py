@@ -24,7 +24,7 @@ class MatFileStruct(object):
     def _extract_matfile(self, var_dict:dict, verbose:bool=False) -> dict:
         """
         """
-        # Sorting of the variables in dataset, user_entry, fwd_model dicts
+        
         for key, val in var_dict.items():
             logger.debug(f'{key}')
             logger.debug(f'type={type(val)} ')
@@ -36,7 +36,7 @@ class MatFileStruct(object):
         struct=self.gather_top_key(struct)
 
         if verbose:
-            glob_utils.types.dict.visualise(struct,disp_val= True)
+            glob_utils.types.dict.visualise(struct)
 
         return struct
 

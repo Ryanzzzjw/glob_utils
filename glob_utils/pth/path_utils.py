@@ -1,11 +1,8 @@
 import os
 
-from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
-import pickle
-import json
+import tkinter     # from tkinter import Tk for Python 3.x
+import tkinter.filedialog
 import datetime
-from typing import Union
 
 from logging import getLogger
 import time
@@ -167,11 +164,11 @@ def get_dir(title:str='Select a directory', initialdir:str=None)->str:
     """    
     
     # Tk().withdraw()
-    root=Tk()
+    root=tkinter.Tk()
     root.withdraw() # we don't want a full GUI, so keep the root window from appearing
 
     # show an "Open" dialog box and return the path to the selected directory
-    dir_path = askdirectory(
+    dir_path = tkinter.filedialog.askdirectory(
         initialdir=initialdir or os.getcwd(),
         title= title)
     root.destroy()
