@@ -1,14 +1,12 @@
 import os
 
-from tkinter import Tk     # from tkinter import Tk for Python 3.x
-from tkinter.filedialog import askdirectory, askopenfilename, askopenfilenames
-import pickle
-import json
+import tkinter     # from tkinter import Tk for Python 3.x
+import tkinter.filedialog
 import datetime
-from typing import Union
 
 from logging import getLogger
 import time
+from typing import Union
 
 logger = getLogger(__name__)
 
@@ -152,33 +150,40 @@ def mk_new_dir(dir_name:str, parent_dir:str= None )-> str:
 
     return new_dir_path
 
-def get_dir(title:str='Select a directory', initialdir:str=None)->str:
+def get_dir(title:str='Select a directory', initialdir:str=None, raise_error:bool=False)->Union[str, None]:
     """Open an explorer dialog for selection of a directory
 
     Args:
-        title (str, optional): title of the Dialog . Defaults to 'Select a directory'.
-        initialdir (str, optional): path of initial directory for the explorer dialog. Defaults to None.
-
+        title (str, optional): title of the Dialog . 
+        Defaults to 'Select a directory'.
+        initialdir (str, optional): path of initial directory for the 
+        explorer dialog. Defaults to None.
+        raise_error (bool, optional): Set to True to raise 
+        OpenDialogDirCancelledException, otherwise only log will be given out.
+        Default to False
     Raises:
         OpenDialogDirCancelledException: when user cancelled the dialog 
 
     Returns:
-        str: a directory path selected by a user
+        str: a directory path selected by a user if success otherwise return None if raise_error is False
     """    
     
     # Tk().withdraw()
-    root=Tk()
+    root=tkinter.Tk()
     root.withdraw() # we don't want a full GUI, so keep the root window from appearing
 
     # show an "Open" dialog box and return the path to the selected directory
-    dir_path = askdirectory(
+    dir_path = tkinter.filedialog.askdirectory(
         initialdir=initialdir or os.getcwd(),
         title= title)
     root.destroy()
-    if not dir_path :
-        raise OpenDialogDirCancelledException(
-            'Open dialog box for directory selection - Cancelled')
-    return dir_path    
+    if dir_path :
+        return dir_path    
+    msg= 'Open dialog box for directory selection - Cancelled'
+    logger.info(f"{msg}")
+    if raise_error:
+        raise OpenDialogDirCancelledException(msg)
+    return None
 
 
 if __name__ == "__main__":
