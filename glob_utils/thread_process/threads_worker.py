@@ -1,8 +1,10 @@
+import logging
 from time import sleep
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from threading import Thread, Event, Timer
 
+logger = logging.getLogger(__name__)
 
 class Poller(Thread):
     """thread to repeatedly poll
@@ -18,6 +20,7 @@ class Poller(Thread):
         self.daemon = deamon
         self._runflag = Event()  # clear this to pause thread
         self._runflag.clear()
+        logger.debug(f"{self.name} - Init")
 
     def run(self):
         self.worker()
@@ -31,9 +34,11 @@ class Poller(Thread):
                 sleep(0.1)
 
     def start_polling(self):
+        logger.debug(f"{self.name} - Start polling")
         self._runflag.set()
 
     def stop_polling(self):
+        logger.debug(f"{self.name} - Stop polling")
         self._runflag.clear()
 
     def pause_polling(self):

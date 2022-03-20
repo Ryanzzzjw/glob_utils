@@ -126,7 +126,7 @@ class MultiState(object):
         self.state=state
     
     def is_set(self, state:int):
-        """Return value of the actual state"""
+        """Return if actual state is set to value"""
         return self.state == state
 
     def actual_state(self):
