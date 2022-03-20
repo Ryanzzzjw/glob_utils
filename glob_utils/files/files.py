@@ -43,6 +43,7 @@ class FileExt(Enum):
     txt= '.txt' # text files
     log= '.log' # log files
     csv= '.csv' # csv files
+    json= '.json' # csv files
 
     def __repr__(self):
       return self.value
