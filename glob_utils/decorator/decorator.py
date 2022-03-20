@@ -22,3 +22,6 @@ def catch_error(func):
                 print(f'Error {msg}')
             return None
     return wrap
+
+if __name__ == "__main__":
+    """"""
