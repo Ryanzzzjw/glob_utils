@@ -42,6 +42,10 @@ def warningMsgBox(title:str='',message:str='') -> bool:
 def errorMsgBox(title:str='',message:str='') -> bool:
     return tkinter.messagebox.showerror(title, message)
 
+@create_tinker
+def askokcancelMsgBox(title:str='',message:str='') -> bool:
+    return tkinter.messagebox.askokcancel(title, message)
+
 
 if __name__ == "__main__":
     """"""
