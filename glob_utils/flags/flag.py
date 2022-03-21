@@ -4,6 +4,7 @@
 ################################################################################
 # Custom flag
 ################################################################################
+from enum import Enum
 from glob_utils.thread_process.signal import Signal
 
 
@@ -125,7 +126,7 @@ class MultiState(object):
         self._set_old()
         self.state=state
     
-    def is_set(self, state:int):
+    def is_set(self, state:int)->bool:
         """Return if actual state is set to value"""
         return self.state == state
 
@@ -136,24 +137,33 @@ class MultiState(object):
     def has_changed(self):
         return self.state != self.state_old
 
-    def reset(self):
-        self.state_old = None
-        self.state = None
+    def reset(self, state:int=None):
+        self.state_old = state
+        self.state = state
 
     def ack_change(self):
         self._set_old()
         
     def _set_old(self):
         self.state_old = self.state
+    
+    def was_old(self, state:int)->bool:
+        """Return if older state was set to value"""
+        return self.state_old == state
+    
+    def was_set(self)->int:
+        """Return the older state """
+        return self.state_old
+
 
 class MultiStatewSignal(MultiState):
     """Class responsible of creating and handling a flag (set, clear, is_set)"""
     
-    def __init__(self, states:list[int]) -> None:
+    def __init__(self, states:list[Enum]) -> None:
         super().__init__(states)
         self.changed= Signal(self)
     
-    def change_state(self, state:int):
+    def change_state(self, state:Enum):
         """change the actual state"""
         if state not in self.states:
             raise ValueError(f'state should have the values {self.states}')
