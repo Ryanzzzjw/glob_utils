@@ -4,6 +4,7 @@
 ################################################################################
 # Custom flag
 ################################################################################
+from abc import ABC, abstractmethod
 from enum import Enum
 from glob_utils.thread_process.signal import Signal
 
@@ -109,113 +110,18 @@ class CustomFlagwSignals(object):
         self.flag_old=bool(self.flag) if not val else val
 
 
-
-
-class MultiState(object):
-    """Class responsible of creating and handling a flag (set, clear, is_set)"""
-    
-    def __init__(self, states:list[int]) -> None:
-        super().__init__()
-        self.states = states
-        self.reset()
+#
         
-    def change_state(self, state:int):
-        """change the actual state"""
-        if state not in self.states:
-            raise ValueError(f'state should have the values {self.states}')
-        self._set_old()
-        self.state=state
+
+if __name__ == "__main__":
+    """"""
+
+    class AStates(BaseStatus):
+        IDLE = 1
+        MEASURING = 1
+        PAUSED = 1
     
-    def is_set(self, state:int)->bool:
-        """Return if actual state is set to value"""
-        return self.state == state
+    a=testS(AStates)
 
-    def actual_state(self):
-        """Return value of the actual state"""
-        return self.state
 
-    def has_changed(self):
-        return self.state != self.state_old
-
-    def reset(self, state:int=None):
-        self.state_old = state
-        self.state = state
-
-    def ack_change(self):
-        self._set_old()
-        
-    def _set_old(self):
-        self.state_old = self.state
     
-    def was_old(self, state:int)->bool:
-        """Return if older state was set to value"""
-        return self.state_old == state
-    
-    def was_set(self)->int:
-        """Return the older state """
-        return self.state_old
-
-
-class MultiStatewSignal(MultiState):
-    """Class responsible of creating and handling a flag (set, clear, is_set)"""
-    
-    def __init__(self, states:list[Enum]) -> None:
-        super().__init__(states)
-        self.changed= Signal(self)
-    
-    def change_state(self, state:Enum):
-        """change the actual state"""
-        if state not in self.states:
-            raise ValueError(f'state should have the values {self.states}')
-        self._set_old()
-        self.state=state
-        self.fire_signals()
-    
-    def fire_signals(self):
-        if self.has_changed():
-            self.changed.fire()
-
-################################################################################
-# custum Timer
-################################################################################
-class CustomTimer(object):
-    max_time:float=1.0
-    time_stp:float=0.1
-    cnt:int=0
-    max_cnt:int
-
-    def __init__(self, max_time:float=1.0, time_stp:float=0.1) -> None:
-        super().__init__()
-        self.set_max_time(max_time)
-        self.set_time_stp(time_stp)
-        self.reset()
-
-    def increment(self)->bool:
-        # print('cnt', self.cnt, self.max_cnt, self.step, self._is_done())
-        if self._is_done():
-            self.reset()
-            return True
-        else:
-            self.cnt+=1
-            return False
-    
-    def reset(self)->None:
-        self.cnt=0
-
-    def set_max_time(self, max_time:float=1.0)->None:
-        self.max_time=max_time
-        self.set_counter()  
-
-    def set_time_stp(self, time_stp:float=0.1)->None:
-        self.time_stp=time_stp  
-        self.set_counter()  
-
-    def _is_done(self)->bool:
-        return self.max_cnt==self.cnt
-    
-    def is_rst(self)->bool:
-        return bool(self.cnt)
-
-    def set_counter(self):
-        self.max_cnt= int(self.max_time/self.time_stp)
-        
