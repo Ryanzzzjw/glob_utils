@@ -4,8 +4,6 @@
 ################################################################################
 # Custom flag
 ################################################################################
-from abc import ABC, abstractmethod
-from enum import Enum
 from glob_utils.thread_process.signal import Signal
 
 
@@ -49,7 +47,7 @@ class CustomFlag(object):
         self._set_old()
 
     def _set_old(self, val:bool=None):
-        self.flag_old=bool(self.flag) if not val else val
+        self.flag_old = val or bool(self.flag)
 
 
 class CustomFlagwSignals(object):
@@ -107,7 +105,7 @@ class CustomFlagwSignals(object):
         self._set_old()
 
     def _set_old(self, val:bool=None):
-        self.flag_old=bool(self.flag) if not val else val
+        self.flag_old = val or bool(self.flag)
 
 
 #
@@ -116,12 +114,7 @@ class CustomFlagwSignals(object):
 if __name__ == "__main__":
     """"""
 
-    class AStates(BaseStatus):
-        IDLE = 1
-        MEASURING = 1
-        PAUSED = 1
     
-    a=testS(AStates)
 
 
     
