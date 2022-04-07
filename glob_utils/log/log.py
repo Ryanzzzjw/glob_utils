@@ -2,6 +2,7 @@
 
 import logging
 import sys
+from typing import Union
 
 # import coloredlogs
 
@@ -15,6 +16,10 @@ logger = logging.getLogger()
 ################################################################################
 # Logging setting
 ################################################################################
+
+LOG_LEVELS = {"DEBUG": logging.DEBUG, "INFO": logging.INFO, "WARNING": logging.WARNING}
+
+
 class MaxLevelFilter(logging.Filter):
     """ Define a filter for logging msg
     >> limit msg < max level
@@ -69,18 +74,23 @@ def check_logger_exist()-> bool:
     """
     return logger.hasHandlers()
     
-def change_level_logging(level:int=logging.DEBUG)->int:
+def change_level_logging(level:Union[int,str]=logging.DEBUG)->int:
     """Modify the logging level
 
     Args:
-        level (int, optional): new logging level. Defaults to logging.DEBUG.
+        level (Union[int,str], optional): new logging level. Defaults to logging.DEBUG.
 
     Returns:
         int: level before change
     """
+    if isinstance(level, str):
+        level = LOG_LEVELS[level]
     actual_level= logger.getEffectiveLevel()
     logger.setLevel(level)
     return actual_level
+
+def list_levels()->list[str]:
+    return list(LOG_LEVELS.keys())
 
 if __name__ == '__main__':
     main_log()

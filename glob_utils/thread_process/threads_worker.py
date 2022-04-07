@@ -1,5 +1,6 @@
 import logging
 from time import sleep
+from typing import Callable
 
 from PyQt5.QtCore import QThread, pyqtSignal
 from threading import Thread, Event, Timer
@@ -75,17 +76,28 @@ class CustomWorker(QThread):
     finished = pyqtSignal()
     progress = pyqtSignal()
 
-    def __init__(self, sleeptime: float = None):  # sourcery skip: or-if-exp-identity
+    def __init__(self, name:str, sleeptime:float=None, deamon=True):  # sourcery skip: or-if-exp-identity
         super(CustomWorker, self).__init__()
+
+        self.name = f'QThread worker "{name}"'
         self.sleeptime = sleeptime or 0.1
+        self.daemon = deamon
         self._runflag = Event()  # clear this to pause thread
         self._runflag.clear()
 
     def start_polling(self):
+        logger.debug(f"{self.name} - Start polling")
         self._runflag.set()
 
     def stop_polling(self):
+        logger.debug(f"{self.name} - Stop polling")
         self._runflag.clear()
+
+    def pause_polling(self):
+        self.stop_polling()
+
+    def resume_polling(self):
+        self.stop_polling()
 
     def is_running(self):
         return self._runflag.is_set()

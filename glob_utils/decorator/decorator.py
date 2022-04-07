@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 # decorator for catching error without making buuuing the app...
 def catch_error(func):
-    '''Decorator that reports the execution time.'''
+    '''Decorator that catch all BaseException 
+    and return it in log with traceback. it return the func result or
+    `None` if an error occurs '''
   
     def wrap(*args, **kwargs)->Union[Any, None]:
         try:

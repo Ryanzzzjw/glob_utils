@@ -26,11 +26,13 @@ class MatFileStruct(object):
         """
         
         for key, val in var_dict.items():
-            logger.debug(f'{key}')
-            logger.debug(f'type={type(val)} ')
+            if verbose:
+                logger.debug(f'{key}')
+                logger.debug(f'type={type(val)} ')
             v= convert2python(val)
             var_dict[key]= v
-            logger.debug(f'type={type(v)} {v=}')
+            if verbose:
+                logger.debug(f'type={type(v)} {v=}')
 
         struct=self.rebuild_matlab_struct(var_dict)
         struct=self.gather_top_key(struct)
