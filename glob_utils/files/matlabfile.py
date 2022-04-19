@@ -3,8 +3,6 @@
 import re
 from logging import getLogger
 from typing import Any
-
-import glob_utils.files.matlabfile
 import numpy as np
 import scipy.sparse
 
