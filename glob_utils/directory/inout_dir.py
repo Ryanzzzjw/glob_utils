@@ -1,7 +1,8 @@
 
 from typing import Union
-from glob_utils.files.files import FileExt, is_file_with_ext, read_txt, save_as_txt
-from glob_utils.pth.path_utils import OpenDialogDirCancelledException, dir_exist, get_dir
+import glob_utils.file.utils
+import glob_utils.file.txt_utils
+from glob_utils.directory.utils import OpenDialogDirCancelledException, dir_exist, get_dir
 from enum import Enum
 import sys
 from logging import getLogger
@@ -100,18 +101,18 @@ class DefaultDir(object):
         list_2log= 'Default directories:\n'+'Directory : Path \n'+'\n'.join(l)
         logger.info(list_2log)
 
-def set_default_dir(reset:bool, DIR:DefaultDir, init_dirs:dict, path:str)->DefaultDir:
+def set_default_dir(reset:bool, DIR:DefaultDir, init_dirs:dict, path:str) -> DefaultDir:
 
     logger.info('Setting default dirs: Start ...')
     dirs = None
-    if is_file_with_ext(path=path, ext=FileExt.txt):
-        dirs = read_txt(path) if not reset else None
+    if glob_utils.file.utils.is_file_with_ext(path=path, ext=glob_utils.file.utils.FileExt.txt):
+        dirs = None if reset else glob_utils.file.txt_utils.read_txt(path)
 
     dirs = dirs or init_dirs
-    
+
     [DIR.add_dir(k, v) for k, v in dirs.items()]
     DIR.log_default_dir()
-    save_as_txt(
+    glob_utils.file.txt_utils.save_as_txt(
         path,
         DIR.get())
     logger.info('Setting default dirs: Done')

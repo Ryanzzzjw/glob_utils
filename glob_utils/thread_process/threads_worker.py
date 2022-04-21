@@ -15,13 +15,13 @@ class Poller(Thread):
     def __init__(self, name, pollfunc, sleeptime=None, deamon=True) -> None:
         Thread.__init__(self)
 
-        self.name = f'Hardware Poller "{name}"'
+        self.name = f'Poller "{name}"'
         self.pollfunc = pollfunc
         self.sleeptime = sleeptime or 0.1
         self.daemon = deamon
         self._runflag = Event()  # clear this to pause thread
         self._runflag.clear()
-        logger.debug(f"{self.name} - Init")
+        logger.info(f"{self.name} - Init")
 
     def run(self):
         self.worker()
@@ -35,11 +35,11 @@ class Poller(Thread):
                 sleep(0.1)
 
     def start_polling(self):
-        logger.debug(f"{self.name} - Start polling")
+        logger.info(f"{self.name} - Start polling")
         self._runflag.set()
 
     def stop_polling(self):
-        logger.debug(f"{self.name} - Stop polling")
+        logger.info(f"{self.name} - Stop polling")
         self._runflag.clear()
 
     def pause_polling(self):
@@ -79,18 +79,19 @@ class CustomWorker(QThread):
     def __init__(self, name:str, sleeptime:float=None, deamon=True):  # sourcery skip: or-if-exp-identity
         super(CustomWorker, self).__init__()
 
-        self.name = f'QThread worker "{name}"'
+        self.name = f'QTworker "{name}"'
         self.sleeptime = sleeptime or 0.1
         self.daemon = deamon
         self._runflag = Event()  # clear this to pause thread
         self._runflag.clear()
+        logger.info(f"{self.name} - Init")
 
     def start_polling(self):
-        logger.debug(f"{self.name} - Start polling")
+        logger.info(f"{self.name} - Start polling")
         self._runflag.set()
 
     def stop_polling(self):
-        logger.debug(f"{self.name} - Stop polling")
+        logger.info(f"{self.name} - Stop polling")
         self._runflag.clear()
 
     def pause_polling(self):

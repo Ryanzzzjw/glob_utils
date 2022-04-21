@@ -6,7 +6,7 @@ from typing import Union
 
 # import coloredlogs
 
-from glob_utils.files.files import FileExt, append_extension
+from glob_utils.file.utils import FileExt, append_extension
 
 logger = logging.getLogger()
 

@@ -3,7 +3,7 @@
 ################################################################################
 import json
 from typing import Any, Union
-from glob_utils.files.files import FileExt, append_extension, is_file_with_ext, logging_file_loaded
+from glob_utils.file.utils import FileExt, append_extension, is_file_with_ext, logging_file_loaded
 from glob_utils.types.dict import visualise, dict_nested
 import numpy as np
 from logging import getLogger

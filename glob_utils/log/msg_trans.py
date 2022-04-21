@@ -9,6 +9,7 @@ MAX_LOG_MSG_LENGTH= 80
 
 def highlight_msg(msg:str, symbol:str='#')->str:
     """Add a continious line of symbol before and after a message to highlight it
+    MAX_LOG_MSG_LENGTH= 80
     eg.:
     ############################################################################
     msg
