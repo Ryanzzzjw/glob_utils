@@ -1,15 +1,59 @@
 
 
+import logging
 import re
-from logging import getLogger
 from typing import Any
+
+import glob_utils.file.utils
+import glob_utils.types.dict
 import numpy as np
+import scipy.io.matlab.mio
 import scipy.sparse
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
+################################################################################
+# Save/Load mat files
+################################################################################
+def save_as_mat(file_path:str, data:dict)->None:
+    """Save data in a mat-file
 
-import glob_utils.types.dict
+    Args:
+        file_path (str): saving path
+        data (dict): dictionary to save
+    """
+
+    if not isinstance(data, dict):
+        logger.error(f'Saving of {data=} in mat file - failed, data should be a dict')
+        return
+    scipy.io.matlab.mio.savemat(file_path,data)
+
+def load_mat(file_path:str, logging:bool= True) -> dict:
+    """Load a matlab mat-file.
+
+    All variables contained in a mat-file (except the private var) are  
+    return in a dictionnary
+
+    Args:
+        file_path (str): path of matlab mat-file to load
+        logging (bool, optional): if set to 'True' logging will be recorded
+            info: file loaded info
+            debug: show the keys of the returned dict
+
+    Returns:
+        dict: variables contained in the mat-file
+    """    
+
+    if not glob_utils.file.utils.check_file(file_path, glob_utils.file.utils.FileExt.mat):
+        return None
+    file = scipy.io.matlab.mio.loadmat(file_path,squeeze_me=True)
+
+    var = {key: file[key] for key in file.keys() if "__" not in key[:2]}
+    glob_utils.file.utils.logging_file_loaded(file_path)
+    if logging:
+        logger.debug(f'Loaded keys:{list(var.keys())}')
+        
+    return var
 
 
 class MatFileStruct(object):
