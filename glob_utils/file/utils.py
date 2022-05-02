@@ -30,6 +30,8 @@ class FileExt(Enum):
     log= '.log' # log files
     csv= '.csv' # csv files
     json= '.json' # csv files
+    png= '.png' # png files
+    jpeg= '.jpeg' # csv files
 
     def __repr__(self):
       return self.value
@@ -279,7 +281,7 @@ def append_extension(path:str, ext:Union[str, FileExt]= None)->str:
     
     Args:
         path (str): path of the file
-        ext (Union[str, FileExt]): extension to append. 
+        ext (Union[str, FileExt]): extension to append. (e.g.: '.png')
         Default to `None` (no appending)
 
     Returns:
