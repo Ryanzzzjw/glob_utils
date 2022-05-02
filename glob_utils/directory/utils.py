@@ -123,6 +123,9 @@ def dir_exist(dir_path:str, create_auto:bool=False, raise_error:bool=False)->boo
     exist= os.path.isdir(dir_path)
     if not exist and raise_error:
         raise DirNotFoundError(f'"{dir_path}" - Directory not found!')
+    else:
+        logger.info(f'Directory: {dir_path} - Exist already')
+        
     if not exist and create_auto:
         os.mkdir(dir_path)
         logger.info(f'Directory: {dir_path} - created')
@@ -149,6 +152,21 @@ def mk_new_dir(dir_name:str, parent_dir:str= None )-> str:
     dir_exist(new_dir_path, create_auto=True) #create if not exist
 
     return new_dir_path
+
+def mk_dir(dir_path:str)-> str:
+    """
+    Create a directory
+
+    Args:
+        dir_path (str): name of the new directory to create
+        parent_dir (str, optional): . Defaults to None.
+
+    Returns:
+        [str]: the path of the created directory
+    """    
+    dir_exist(dir_path, create_auto=True) #create if not exist
+
+    return dir_path
 
 def get_dir(title:str='Select a directory', initialdir:str=None, raise_error:bool=False)->Union[str, None]:
     """Open an explorer dialog for selection of a directory
