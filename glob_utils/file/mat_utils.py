@@ -22,7 +22,7 @@ def save_as_mat(file_path:str, data:dict)->None:
         file_path (str): saving path
         data (dict): dictionary to save
     """
-
+    file_path= glob_utils.file.utils.append_extension(file_path, glob_utils.file.utils.FileExt.mat)
     if not isinstance(data, dict):
         logger.error(f'Saving of {data=} in mat file - failed, data should be a dict')
         return
