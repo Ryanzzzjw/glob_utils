@@ -21,6 +21,7 @@ def save_as_pickle(file_path:str, obj:Any)->None:
     file_path= glob_utils.file.utils.append_extension(file_path, glob_utils.file.utils.FileExt.pkl)
     with open(file_path, 'wb') as file:
         pickle.dump(obj, file, pickle.HIGHEST_PROTOCOL)
+    glob_utils.file.utils.logging_file_saved(file_path)
 
 def load_pickle(file_path:str, obj:Any=None)->Any:
     """Load an Object out of an pkl-file

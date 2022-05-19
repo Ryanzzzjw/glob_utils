@@ -3,7 +3,7 @@
 ################################################################################
 import json
 from typing import Any, Union
-from glob_utils.file.utils import FileExt, append_extension, is_file_with_ext, logging_file_loaded
+from glob_utils.file.utils import FileExt, append_extension, is_file_with_ext, logging_file_loaded, logging_file_saved
 from glob_utils.types.dict import visualise, dict_nested
 import numpy as np
 from logging import getLogger
@@ -107,6 +107,7 @@ def save_to_json(file_path:str, obj:dict, header:str= None) -> None:
 
     with open(file_path, 'w') as file:
         [ file.write(f'{line}\n') for line in lines ]
+    logging_file_saved(file_path)
 
 
 

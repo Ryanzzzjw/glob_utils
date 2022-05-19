@@ -27,6 +27,7 @@ def save_as_mat(file_path:str, data:dict)->None:
         logger.error(f'Saving of {data=} in mat file - failed, data should be a dict')
         return
     scipy.io.matlab.mio.savemat(file_path,data)
+    glob_utils.file.utils.logging_file_saved(file_path)
 
 def load_mat(file_path:str, logging:bool= True) -> dict:
     """Load a matlab mat-file.
