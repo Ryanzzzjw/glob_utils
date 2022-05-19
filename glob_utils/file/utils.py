@@ -317,15 +317,31 @@ def set_attributes(old_obj:Any, new_obj:Any) -> None:
         setattr(old_obj, key, getattr(new_obj,key))
 
 
-def logging_file_loaded(file_path:str=None)->None:
+def logging_file_loaded(file_path:str=None, )->None:
+    """[summary]
+
+    Args:
+        file_path (str, optional): [description]. Defaults to None.
+    """
+    _logging_file_loaded(file_path,'LOADED')
+
+def logging_file_saved(file_path:str=None)->None:
+    """[summary]
+
+    Args:
+        file_path (str, optional): [description]. Defaults to None.
+    """
+    _logging_file_loaded(file_path,'SAVED')
+
+def _logging_file_loaded(file_path:str=None, action:str= 'LOADED')->None:
     """[summary]
 
     Args:
         file_path (str, optional): [description]. Defaults to None.
     """
     dir_path, filename= os.path.split(file_path)
-    msg=f'Loading file: {filename}\n(dir: ...{dir_path})'
-    logger.info(glob_utils.log.msg_trans.highlight_msg(msg))
+    msg=f'File: {filename} - {action}\nDirectory: {dir_path}'
+    logger.info(glob_utils.log.msg_trans.highlight_msg(msg, '-'))
 
 if __name__ == "__main__":
     from glob_utils.log.log  import main_log
