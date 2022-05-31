@@ -1,6 +1,27 @@
 from typing import Any
 
-def isstring(var:Any, raise_error:bool=False)-> bool:
+
+
+def checkinstance(inst:Any, cls:Any, raise_error:bool=True) -> bool:
+    """Check if var is an instance of cls
+
+    Args:
+        var (str): variable to check
+        raise_error (bool, optional): TypeError raised if set to `True`. Defaults to `False`.
+
+    Raises:
+        TypeError: raised if var is not string
+
+    Returns:
+        bool: `True` if var is a string
+    """    
+    is_ =isinstance(inst, cls)
+    if not is_ and raise_error:
+        raise TypeError(f'Wrong type of {inst=}, {type(inst)=}, expected {cls}')
+    return is_
+
+
+def isstring(var:Any, raise_error:bool=False) -> bool:
     """Check if var is a string
 
     Args:
@@ -14,7 +35,7 @@ def isstring(var:Any, raise_error:bool=False)-> bool:
         bool: `True` if var is a string
     """    
     is_ =isinstance(var, str)
-    if not is_ and bool(raise_error):
+    if not is_ and raise_error:
         raise TypeError(f'String expected: {var=} is not a str')
     return is_
 
