@@ -164,9 +164,8 @@ def mk_dir(dir_path:str)-> str:
     Returns:
         [str]: the path of the created directory
     """    
-    dir_exist(dir_path, create_auto=True) #create if not exist
-
-    return dir_path
+    exist= dir_exist(dir_path, create_auto=True) #create if not exist
+    return dir_path if exist else None
 
 def get_dir(title:str='Select a directory', initialdir:str=None, raise_error:bool=False)->Union[str, None]:
     """Open an explorer dialog for selection of a directory
