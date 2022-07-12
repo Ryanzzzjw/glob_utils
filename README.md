@@ -3,6 +3,7 @@
 Package regrouping different utilities used in different packages:
 - `eit_app`
 - `eit_ai`
+- `eit_model`
 
 ## 1. Introduction
 
